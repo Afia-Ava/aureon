@@ -53,14 +53,15 @@
         }
         .studio-header {
             background: #ffffff;
-            box-shadow: 0 2px 20px rgba(0,0,0,0.05);
+            /* box-shadow: 0 2px 20px rgba(0,0,0,0.05); */ /* Remove shade */
             padding: 2rem 0 1rem;
-            text-align: center;
+            text-align: left;
         }
         .studio-header h1 {
             font-family: 'Playfair Display', serif;
             font-size: 2.5rem;
             margin-bottom: 0.5rem;
+            margin-left: 0;
         }
         .studio-header p {
             color: #6b6b6b;
@@ -246,17 +247,20 @@
         <nav class="nav container">
             <a href="index.html" class="logo">aureon</a>
             <ul class="nav-links">
-                <li><a href="index.html#features">Features</a></li>
-                <li><a href="index.html#moods">Moods</a></li>
+                <li><a href="index.html">Home</a></li>
                 <li><a href="studio.html">Studio</a></li>
-                <li><a href="index.html#contact">Contact</a></li>
+                <li><a href="gallery.html">Gallery</a></li>
+                <li>
+                    <a href="#" style="background:#a8b5a0;color:#fff;padding:0.5rem 1.5rem;border-radius:24px;font-weight:600;transition:background 0.2s;">Join</a>
+                </li>
             </ul>
         </nav>
     </header>
 
     <div class="studio-header">
-        <h1>Design Studio</h1>
-        <p>Step into your creative playground. Start by choosing a base wearable, then customize and export your luminous design!</p>
+        <div class="container">
+            <h1>Design Studio</h1>
+        </div>
     </div>
     <div class="container">
         <div class="steps">
@@ -265,7 +269,6 @@
             <button class="step step-nav" data-step="export"><span>✨</span> Export</button>
         </div>
         <div class="studio-main">
-            <!-- Step 1: Choose Base -->
             <div class="gallery" id="choose-base-step">
                 <div class="gallery-filters">
                     <button class="gallery-filter active">All</button>
@@ -284,7 +287,6 @@
                   <button class="next-btn" style="margin-top:2rem;margin-bottom:5.5rem;padding:1rem 2.5rem;font-size:1.1rem;background:#a8b5a0;color:#fff;border:none;border-radius:30px;cursor:pointer;">Next</button>
                 </div>
             </div>
-            <!-- Step 2: Customize (hidden by default) -->
             <div class="customizer" id="customize-step" style="display:none;">
                 <div class="customizer-flex" style="display:flex;gap:2.5rem;align-items:flex-start;">
                     <div class="customizer-left" style="flex:1;min-width:220px;">
@@ -308,7 +310,6 @@
                     </div>
                 </div>
             </div>
-            <!-- Step 3: Export (hidden by default) -->
             <div class="export-step" id="export-step" style="display:none;">
                 <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:320px;padding-bottom:5rem;">
                     <div class="preview-area" style="width:100%;max-width:600px;margin-bottom:2.5rem;">
@@ -324,7 +325,6 @@
         </div>
     </div>
     <script>
-    // Step navigation logic
     function showStep(step) {
       const chooseBaseStep = document.getElementById('choose-base-step');
       const customizeStep = document.getElementById('customize-step');
@@ -342,7 +342,6 @@
         customizeStep.style.display = 'none';
         if (exportStep) exportStep.style.display = '';
       }
-      // Update step indicator
       document.querySelectorAll('.steps .step').forEach(btn => btn.classList.remove('active'));
       const activeBtn = document.querySelector('.steps .step-nav[data-step="' + step + '"]');
       if (activeBtn) activeBtn.classList.add('active');
@@ -352,13 +351,11 @@
         showStep(this.getAttribute('data-step'));
       });
     });
-    // Next button logic
     document.querySelectorAll('.next-btn, .customize-next-btn').forEach(nextBtn => {
       nextBtn.addEventListener('click', function() {
         showStep('customize');
       });
     });
-    // Export next button logic
     document.querySelectorAll('.customize-next-btn').forEach(nextBtn => {
       nextBtn.addEventListener('click', function() {
         showStep('export');
@@ -366,7 +363,6 @@
     });
     </script>
     <script>
-    // Base card selection logic
     document.querySelectorAll('.base-card').forEach(card => {
       card.addEventListener('click', function() {
         document.querySelectorAll('.base-card').forEach(c => c.classList.remove('selected'));
