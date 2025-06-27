@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Design Studio | aureon</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #ffffff;
+            color: #3a3a3a;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        .header {
+            background: #ffffff;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.05);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            color: #3a3a3a;
+            text-decoration: none;
+        }
+        .nav-links {
+            list-style: none;
+            display: flex;
+            gap: 2rem;
+        }
+        .nav-links a {
+            text-decoration: none;
+            color: #3a3a3a;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        .nav-links a:hover {
+            color: #d4af37;
+        }
+        .studio-header {
+            background: #ffffff;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.05);
+            padding: 2rem 0 1rem;
+            text-align: center;
+        }
+        .studio-header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .studio-header p {
+            color: #6b6b6b;
+            font-size: 1.1rem;
+        }
+        .steps {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin: 2rem 0 3rem;
+        }
+        .step {
+            background: #f0ede8;
+            border-radius: 12px;
+            padding: 1rem 2rem;
+            font-weight: 500;
+            color: #3a3a3a;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+        }
+        .step.active {
+            background: #a8b5a0;
+            color: #fff;
+        }
+        .studio-main {
+            display: flex;
+            gap: 2.5rem;
+            align-items: flex-start;
+            margin-top: 1.2rem;
+        }
+        .gallery {
+            flex: 0.8;
+        }
+        .gallery-filters {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.2rem;
+        }
+        .gallery-filter {
+            background: #e8e4f0;
+            border: none;
+            border-radius: 20px;
+            padding: 0.4rem 1.2rem;
+            cursor: pointer;
+            color: #3a3a3a;
+            font-size: 1rem;
+            transition: background 0.2s;
+        }
+        .gallery-filter.active, .gallery-filter:hover {
+            background: #a8b5a0;
+            color: #fff;
+        }
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+        }
+        .base-card {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            padding: 0.7rem 0.2rem 0.6rem;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            position: relative;
+            width: 90px;
+            min-width: 0;
+            margin: 0 auto;
+        }
+        .base-card.selected {
+            border: 2px solid #a8b5a0;
+            box-shadow: 0 4px 16px rgba(168,181,160,0.13);
+        }
+        .base-card:hover {
+            transform: scale(1.05) translateY(-2px);
+            box-shadow: 0 8px 24px rgba(168,181,160,0.15);
+        }
+        .base-card img {
+            width: 48px !important;
+            height: 48px !important;
+            border-radius: 8px !important;
+            margin-bottom: 0.3rem !important;
+            object-fit: cover;
+        }
+        .base-label {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+        .customizer {
+            flex: 2.2;
+            background: #fff;
+            border-radius: 18px;
+            box-shadow: 0 6px 24px rgba(0,0,0,0.07);
+            padding: 2.5rem 2rem 1.5rem;
+            min-height: 480px;
+            margin-top: 1.5rem;
+        }
+        .customizer-tabs {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .customizer-tab {
+            background: #e8e4f0;
+            border: none;
+            border-radius: 20px;
+            padding: 0.5rem 1.5rem;
+            cursor: pointer;
+            color: #3a3a3a;
+            font-size: 1rem;
+            transition: background 0.2s;
+        }
+        .customizer-tab.active, .customizer-tab:hover {
+            background: #d4af37;
+            color: #fff;
+        }
+        .customizer-content {
+            min-height: 220px;
+        }
+        .preview-area {
+            background: #e8e4f0;
+            border-radius: 15px;
+            min-height: 320px;
+            margin: 2.5rem 0 2rem 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            color: #a8b5a0;
+        }
+        .export-bar {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        .export-btn, .save-btn, .share-btn {
+            background: #a8b5a0;
+            color: #fff;
+            border: none;
+            border-radius: 30px;
+            padding: 0.7rem 2rem;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .export-btn:hover, .save-btn:hover, .share-btn:hover {
+            background: #d4af37;
+        }
+        .studio-stepbar {
+            display: flex;
+            justify-content: flex-start;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            margin-top: 0.5rem;
+        }
+        .studio-step {
+            background: #e8e4f0;
+            border: none;
+            border-radius: 20px;
+            padding: 0.5rem 1.1rem;
+            font-size: 0.98rem;
+            font-weight: 600;
+            color: #3a3a3a;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s;
+        }
+        .studio-step.selected, .studio-step:hover {
+            background: #d4af37;
+            color: #fff;
+        }
+        @media (max-width: 900px) {
+            .studio-main { flex-direction: column; }
+            .customizer { margin-top: 2rem; }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <nav class="nav container">
+            <a href="index.html" class="logo">aureon</a>
+            <ul class="nav-links">
+                <li><a href="index.html#features">Features</a></li>
+                <li><a href="index.html#moods">Moods</a></li>
+                <li><a href="studio.html">Studio</a></li>
+                <li><a href="index.html#contact">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="studio-header">
+        <h1>Design Studio</h1>
+        <p>Step into your creative playground. Start by choosing a base wearable, then customize and export your luminous design!</p>
+    </div>
+    <div class="container">
+        <div class="steps">
+            <button class="step active step-nav" data-step="choose-base"><span>1️⃣</span> Choose Base</button>
+            <button class="step step-nav" data-step="customize"><span>🎨</span> Customize</button>
+            <button class="step step-nav" data-step="export"><span>✨</span> Export</button>
+        </div>
+        <div class="studio-main">
+            <!-- Step 1: Choose Base -->
+            <div class="gallery" id="choose-base-step">
+                <div class="gallery-filters">
+                    <button class="gallery-filter active">All</button>
+                    <button class="gallery-filter">Dress</button>
+                    <button class="gallery-filter">Wings</button>
+                    <button class="gallery-filter">Jacket</button>
+                    <button class="gallery-filter">Tote Bag</button>
+                </div>
+                <div class="gallery-grid">
+                    <div class="base-card selected"><img src="https://images.unsplash.com/photo-1512436991641-6745cdb1723f?auto=format&fit=crop&w=200&q=80" alt="Dress" style="width:48px;height:48px;border-radius:8px;margin-bottom:0.3rem;object-fit:cover;" /><div class="base-label" style="font-size:0.95rem;">Dress</div></div>
+                    <div class="base-card"><img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=200&q=80" alt="Wings" style="width:48px;height:48px;border-radius:8px;margin-bottom:0.3rem;object-fit:cover;" /><div class="base-label" style="font-size:0.95rem;">Wings</div></div>
+                    <div class="base-card"><img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=200&q=80" alt="Jacket" style="width:48px;height:48px;border-radius:8px;margin-bottom:0.3rem;object-fit:cover;" /><div class="base-label" style="font-size:0.95rem;">Jacket</div></div>
+                    <div class="base-card"><img src="https://images.unsplash.com/photo-1512436991641-6745cdb1723f?auto=format&fit=crop&w=200&q=80" alt="Tote Bag" style="width:48px;height:48px;border-radius:8px;margin-bottom:0.3rem;object-fit:cover;" /><div class="base-label" style="font-size:0.95rem;">Tote Bag</div></div>
+                </div>
+                <div style="width:100%;display:flex;justify-content:center;">
+                  <button class="next-btn" style="margin-top:2rem;margin-bottom:5.5rem;padding:1rem 2.5rem;font-size:1.1rem;background:#a8b5a0;color:#fff;border:none;border-radius:30px;cursor:pointer;">Next</button>
+                </div>
+            </div>
+            <!-- Step 2: Customize (hidden by default) -->
+            <div class="customizer" id="customize-step" style="display:none;">
+                <div class="customizer-flex" style="display:flex;gap:2.5rem;align-items:flex-start;">
+                    <div class="customizer-left" style="flex:1;min-width:220px;">
+                        <div class="studio-stepbar" style="margin-bottom:2rem;">
+                            <button class="studio-step selected">Color Palette</button>
+                            <button class="studio-step">LED Patterns</button>
+                            <button class="studio-step">Movement Style</button>
+                            <button class="studio-step">Mood Modes</button>
+                        </div>
+                        <div class="customizer-content">
+                            <div><strong>Color Palette:</strong> Pick or generate your colors here.</div>
+                        </div>
+                        <div style="margin-top:2.5rem;display:flex;justify-content:flex-end;">
+                            <button class="next-btn customize-next-btn" style="padding:0.8rem 2.2rem;font-size:1.05rem;background:#a8b5a0;color:#fff;border:none;border-radius:30px;cursor:pointer;">Next</button>
+                        </div>
+                    </div>
+                    <div class="customizer-right" style="flex:1.2;min-width:320px;">
+                        <div class="preview-area">
+                            <span>3D Preview</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Step 3: Export (hidden by default) -->
+            <div class="export-step" id="export-step" style="display:none;">
+                <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:320px;padding-bottom:5rem;">
+                    <div class="preview-area" style="width:100%;max-width:600px;margin-bottom:2.5rem;">
+                        <span>Final Preview</span>
+                    </div>
+                    <div class="export-bar" style="margin-top:0;">
+                        <button class="export-btn">Export Code</button>
+                        <button class="save-btn">Save</button>
+                        <button class="share-btn">Share</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+    // Step navigation logic
+    function showStep(step) {
+      const chooseBaseStep = document.getElementById('choose-base-step');
+      const customizeStep = document.getElementById('customize-step');
+      const exportStep = document.getElementById('export-step');
+      if (step === 'choose-base') {
+        chooseBaseStep.style.display = '';
+        customizeStep.style.display = 'none';
+        if (exportStep) exportStep.style.display = 'none';
+      } else if (step === 'customize') {
+        chooseBaseStep.style.display = 'none';
+        customizeStep.style.display = '';
+        if (exportStep) exportStep.style.display = 'none';
+      } else if (step === 'export') {
+        chooseBaseStep.style.display = 'none';
+        customizeStep.style.display = 'none';
+        if (exportStep) exportStep.style.display = '';
+      }
+      // Update step indicator
+      document.querySelectorAll('.steps .step').forEach(btn => btn.classList.remove('active'));
+      const activeBtn = document.querySelector('.steps .step-nav[data-step="' + step + '"]');
+      if (activeBtn) activeBtn.classList.add('active');
+    }
+    document.querySelectorAll('.step-nav').forEach(btn => {
+      btn.addEventListener('click', function() {
+        showStep(this.getAttribute('data-step'));
+      });
+    });
+    // Next button logic
+    document.querySelectorAll('.next-btn, .customize-next-btn').forEach(nextBtn => {
+      nextBtn.addEventListener('click', function() {
+        showStep('customize');
+      });
+    });
+    // Export next button logic
+    document.querySelectorAll('.customize-next-btn').forEach(nextBtn => {
+      nextBtn.addEventListener('click', function() {
+        showStep('export');
+      });
+    });
+    </script>
+    <script>
+    // Base card selection logic
+    document.querySelectorAll('.base-card').forEach(card => {
+      card.addEventListener('click', function() {
+        document.querySelectorAll('.base-card').forEach(c => c.classList.remove('selected'));
+        this.classList.add('selected');
+      });
+    });
+    </script>
+</body>
+</html>
