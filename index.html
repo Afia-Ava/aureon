@@ -7,7 +7,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;
     <!-- Add Google Fonts for an elegant cursive style -->
     <link href="https://fonts.googleapis.com/css2?family=Allura&display=swap" rel="stylesheet">
-    <!-- Use a more elegant cursive font for "Wearables" -->
     <link href="https://fonts.googleapis.com/css2?family=Parisienne&display=swap" rel="stylesheet">
     <style>
         * {
@@ -523,7 +522,6 @@
             100% { transform: rotate(12deg) scale(1.13);}
         }
     </style>
-    <!-- Add Firebase App and Auth SDKs in the <head> if not already present -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 </head>
@@ -684,12 +682,14 @@
             });
         });
 
-        const observerOptions = {
+        const observerOptions = 
+        {
             threshold: 0.1,
             rootMargin: '0px 0px -50px 0px'
         };
 
-        const observer = new IntersectionObserver((entries) => {
+        const observer = new IntersectionObserver((entries) => 
+        {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
                     entry.target.style.animationDelay = '0.1s';
@@ -712,7 +712,6 @@
             });
         });
 
-        // Add fun hover effect to hero emoji
         document.addEventListener('DOMContentLoaded', function() {
             const emoji = document.querySelector('.hero-emoji');
             if (emoji) {
@@ -727,7 +726,6 @@
             }
         });
 
-        // Mood card ripple/active effect
         document.querySelectorAll('.mood-card').forEach(card => {
             card.addEventListener('mousedown', function(e) {
                 const ripple = document.createElement('span');
@@ -752,27 +750,22 @@
                 }, 520);
             });
         });
-
-        // Firebase config for the-aureon project
-        const firebaseConfig = {
-            apiKey: "AIzaSyCn-1-Lp4Cweu99s68ODDEQOX69isn3ro8",
-            authDomain: "the-aureon.firebaseapp.com",
-            projectId: "the-aureon",
-            storageBucket: "the-aureon.appspot.com",
-            messagingSenderId: "685624046929",
-            appId: "1:685624046929:web:dummyid"
-        };
+    </script>
+    <script src="firebase-secrets.js"></script>
+    <script>
+    // Use firebaseConfig from firebase-secrets.js
+    if (typeof firebaseConfig === 'undefined') {
+        console.error('firebaseConfig is not defined. Please provide your firebase-secrets.js file.');
+    } else {
         if (!firebase.apps || !firebase.apps.length) {
             firebase.initializeApp(firebaseConfig);
         }
         const auth = firebase.auth();
 
-        // --- Profile photo logic for nav (shared for all pages) ---
         function updateNavProfile(user) {
             const navLinks = document.querySelector('.nav-links');
             if (!navLinks) return;
             navLinks.querySelectorAll('.nav-profile-photo-li, .nav-join-btn-li').forEach(el => el.remove());
-            // Remove any static Join button (for SSR/static HTML)
             navLinks.querySelectorAll('a.nav-join-btn, li').forEach(el => {
                 if (
                     el.tagName === 'LI' &&
@@ -804,12 +797,61 @@
                 img.style.display = 'block';
                 img.style.margin = '0';
                 img.style.verticalAlign = 'middle';
-                img.onclick = function() {
-                    if (confirm('Log out of aureon?')) {
-                        auth.signOut();
-                    }
+
+                const dropdown = document.createElement('div');
+                dropdown.className = 'nav-profile-dropdown';
+                dropdown.style.position = 'absolute';
+                dropdown.style.top = '60px';
+                dropdown.style.right = '0';
+                dropdown.style.background = '#fff';
+                dropdown.style.boxShadow = '0 4px 16px rgba(168,181,160,0.13)';
+                dropdown.style.borderRadius = '12px';
+                dropdown.style.padding = '0.5rem 0';
+                dropdown.style.minWidth = '140px';
+                dropdown.style.display = 'none';
+                dropdown.style.zIndex = '2000';
+
+                const profileOption = document.createElement('a');
+                profileOption.href = 'profile.html';
+                profileOption.textContent = 'Profile';
+                profileOption.style.display = 'block';
+                profileOption.style.padding = '0.7rem 1.2rem';
+                profileOption.style.color = '#3a3a3a';
+                profileOption.style.textDecoration = 'none';
+                profileOption.style.fontWeight = '500';
+                profileOption.onmouseover = function() { this.style.background = '#f0ede8'; };
+                profileOption.onmouseout = function() { this.style.background = 'none'; };
+
+                const logoutOption = document.createElement('a');
+                logoutOption.href = '#';
+                logoutOption.textContent = 'Log Out';
+                logoutOption.style.display = 'block';
+                logoutOption.style.padding = '0.7rem 1.2rem';
+                logoutOption.style.color = '#a8b5a0';
+                logoutOption.style.textDecoration = 'none';
+                logoutOption.style.fontWeight = '500';
+                logoutOption.onmouseover = function() { this.style.background = '#f0ede8'; };
+                logoutOption.onmouseout = function() { this.style.background = 'none'; };
+                logoutOption.onclick = function(e) {
+                    e.preventDefault();
+                    auth.signOut();
                 };
+
+                dropdown.appendChild(profileOption);
+                dropdown.appendChild(logoutOption);
+                li.style.position = 'relative';
                 li.appendChild(img);
+                li.appendChild(dropdown);
+
+                img.onclick = function(e) {
+                    e.stopPropagation();
+                    dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+                };
+                document.addEventListener('click', function hideDropdown(ev) {
+                    if (!li.contains(ev.target)) {
+                        dropdown.style.display = 'none';
+                    }
+                });
                 navLinks.appendChild(li);
             } else {
                 const li = document.createElement('li');
@@ -835,7 +877,10 @@
 
         auth.onAuthStateChanged(function(user) {
             updateNavProfile(user);
+            console.log('[index.html] onAuthStateChanged. User:', user);
         });
+        console.log('[index.html] Firebase initialized, script loaded.');
+    }
     </script>
 </body>
 </html>

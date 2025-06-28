@@ -1,0 +1,3 @@
+# Always ignore secrets and local config (even if not present)
+firebase-secrets.js
+.env

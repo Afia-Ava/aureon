@@ -593,7 +593,6 @@
                                         <div class="dress-style-demo-label">Wing 3</div>
                                     </div>
                                 </div>
-                                <!-- Jacket styles (only for Jacket) -->
                                 <div class="dress-style-demo-grid style-options" data-base="Jacket" style="display:none;">
                                     <div class="dress-style-demo-box" data-style="jacket1">
                                         <div class="dress-style-demo-imgbox">
@@ -610,7 +609,6 @@
                                         <div class="dress-style-demo-label">Jacket 2</div>
                                     </div>
                                 </div>
-                                <!-- Tote Bag styles (only for Tote Bag) -->
                                 <div class="dress-style-demo-grid style-options" data-base="Tote Bag" style="display:none;">
                                     <div class="dress-style-demo-box" data-style="bag1">
                                         <div class="dress-style-demo-imgbox">
@@ -668,7 +666,6 @@
                                     </div>
                                 </div>
                             </div>
-                            <!-- Stitch options -->
                             <div class="stitch-options" id="stitch-options" style="display:none; margin-top:2rem;">
                                 <div style="font-weight:600;margin-bottom:1rem;">Pick your thread color:</div>
                                 <div id="thread-color-palette" style="display:flex;gap:1.2rem;flex-wrap:wrap;margin-bottom:1.5rem;">
@@ -806,27 +803,21 @@ document.querySelectorAll('.base-card').forEach(card => {
 });
 </script>
     <script>
-// Map for overlay images for all bases
 const overlayImages = {
-    // Dress
     style1: "asset/style1.png",
     style2: "asset/style2.png",
     style3: "asset/style3.png",
     style4: "asset/style4.png",
-    // Wings
     wing1: "asset/wing1.png",
     wing2: "asset/wing2.png",
     wing3: "asset/wing3.png",
-    // Jacket
     jacket1: "asset/jacket1.png",
     jacket2: "asset/jacket2.png",
-    // Tote Bag
     bag1: "asset/bag1.png",
     bag2: "asset/bag2.png",
     bag3: "asset/bag3.png"
 };
 
-// Map for style titles
 const styleTitles = {
     "Dress": "Dress Style: Pick your dress style here.",
     "Wings": "Wings Style: Pick your wings style here.",
@@ -846,7 +837,6 @@ function showStyleOptions(baseName) {
         // Only show the selected base's style options
         opt.style.display = (opt.getAttribute('data-base') === baseName) ? 'flex' : 'none';
     });
-    // Hide all other style options (Dress, Bag, etc.) if Jacket is selected
     if (baseName === "Jacket") {
         document.querySelectorAll('.style-options').forEach(opt => {
             if (opt.getAttribute('data-base') !== "Jacket") {
@@ -867,19 +857,16 @@ function showStyleOptions(baseName) {
             overlay.style.opacity = 1;
         }
     }
-    // Update style title
     const styleTitle = document.getElementById('style-title');
     if (styleTitle) {
         styleTitle.innerHTML = styleTitles[baseName] || "Pick your style here.";
     }
-    // Update yellow button label
     const styleBtn = document.getElementById('studio-step-style-btn');
     if (styleBtn) {
         styleBtn.textContent = styleStepBtnLabels[baseName] || "Style";
     }
 }
 
-// Listen for base selection and update style options
 document.querySelectorAll('.base-card').forEach(card => {
     card.addEventListener('click', function() {
         const base = this.getAttribute('data-name');
@@ -887,11 +874,9 @@ document.querySelectorAll('.base-card').forEach(card => {
     });
 });
 
-// Listen for style selection and update overlay image
 document.getElementById('style-options-container').addEventListener('click', function(e) {
     const box = e.target.closest('.dress-style-demo-box');
     if (!box) return;
-    // Remove selected from all in current group
     box.parentElement.querySelectorAll('.dress-style-demo-box').forEach(b => b.classList.remove('selected'));
     box.classList.add('selected');
     const style = box.getAttribute('data-style');
@@ -902,15 +887,11 @@ document.getElementById('style-options-container').addEventListener('click', fun
     }
 });
 
-// On load, show Dress styles if Dress is selected, else none
 window.addEventListener('DOMContentLoaded', function() {
-    // ...existing code...
-    // Show no style options by default, or show Dress if you want Dress as default
     showStyleOptions(null);
 });
     </script>
     <script>
-// Search functionality for base cards
 document.getElementById('baseSearchInput').addEventListener('input', function() {
     const query = this.value.trim().toLowerCase();
     document.querySelectorAll('#baseGalleryGrid .base-card').forEach(card => {
@@ -920,29 +901,24 @@ document.getElementById('baseSearchInput').addEventListener('input', function() 
 });
     </script>
     <script>
-// Remove 'selected' from all base-cards on load (none selected by default)
 window.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('.base-card').forEach((c) => {
         c.classList.remove('selected');
-        // Remove any custom inline border/background for Dress
         c.style.border = '';
         c.style.background = '';
         c.style.boxShadow = '';
     });
 });
 
-// Only one base-card can be selected at a time, and only after click
 document.querySelectorAll('.base-card').forEach(card => {
   card.addEventListener('click', function() {
     document.querySelectorAll('.base-card').forEach(c => {
         c.classList.remove('selected');
-        // Remove custom highlight styles from all
         c.style.border = '';
         c.style.background = '';
         c.style.boxShadow = '';
     });
     this.classList.add('selected');
-    // Optionally, add highlight styles only to the selected card
     this.style.border = '2.5px solid #d4af37';
     this.style.background = 'linear-gradient(135deg,#fdf6e3 60%,#f7f3e7 100%)';
     this.style.boxShadow = '0 8px 32px 0 rgba(212,175,55,0.13),0 2px 12px 0 rgba(168,181,160,0.10)';
@@ -950,12 +926,10 @@ document.querySelectorAll('.base-card').forEach(card => {
 });
     </script>
     <script>
-// Tab switching for customization steps
 const studioSteps = document.querySelectorAll('.studio-stepbar .studio-step');
 const styleOptionsContainer = document.getElementById('style-options-container');
 const stitchOptions = document.getElementById('stitch-options');
 
-// Replace "Colors" with "Stitch"
 if (studioSteps.length > 1) {
     studioSteps[1].textContent = "Stitch";
 }
@@ -964,7 +938,6 @@ studioSteps.forEach((btn, idx) => {
     btn.addEventListener('click', function() {
         studioSteps.forEach(b => b.classList.remove('selected'));
         btn.classList.add('selected');
-        // Show/hide style/stitch options
         if (idx === 0) {
             document.querySelectorAll('.style-options').forEach(opt => opt.style.display = '');
             if (stitchOptions) stitchOptions.style.display = 'none';
@@ -978,7 +951,6 @@ studioSteps.forEach((btn, idx) => {
     });
 });
 
-// --- Stitch Drawing Logic with Undo/Redo and Marker Type ---
 let selectedThreadColor = "#d4af37";
 let selectedStitchStyle = "zigzag";
 let markerType = "stitch";
@@ -993,7 +965,6 @@ let lastPoint = null;
 let undoStack = [];
 let redoStack = [];
 
-// Thread color selection
 colorEls.forEach(el => {
     el.addEventListener('click', function() {
         colorEls.forEach(c => c.style.border = '2px solid #ece7d8');
@@ -1003,7 +974,6 @@ colorEls.forEach(el => {
 });
 if (colorEls[0]) colorEls[0].style.border = '2px solid #d4af37';
 
-// Stitch style selection
 stitchEls.forEach(el => {
     el.addEventListener('click', function() {
         stitchEls.forEach(s => s.style.border = '2px solid #ece7d8');
@@ -1013,14 +983,12 @@ stitchEls.forEach(el => {
 });
 if (stitchEls[0]) stitchEls[0].style.border = '2px solid #d4af37';
 
-// Marker type selection
 if (markerTypeSelect) {
     markerTypeSelect.addEventListener('change', function() {
         markerType = this.value;
     });
 }
 
-// Drawing on canvas (draws directly over the area)
 if (stitchCanvas) {
     const ctx = stitchCanvas.getContext('2d');
     function saveState() {
@@ -1061,7 +1029,6 @@ if (stitchCanvas) {
         drawing = false;
         lastPoint = null;
     });
-    // Touch support
     stitchCanvas.addEventListener('touchstart', function(e) {
         e.preventDefault();
         drawing = true;
@@ -1083,8 +1050,6 @@ if (stitchCanvas) {
         drawing = false;
         lastPoint = null;
     });
-
-    // Undo/Redo
     if (undoBtn) {
         undoBtn.addEventListener('click', function() {
             restoreState(undoStack, redoStack);
@@ -1189,7 +1154,6 @@ function drawMarker(from, to, color, ctx) {
     ctx.restore();
 }
 
-// Clear button
 if (clearBtn && stitchCanvas) {
     clearBtn.addEventListener('click', function() {
         const ctx = stitchCanvas.getContext('2d');
@@ -1197,20 +1161,16 @@ if (clearBtn && stitchCanvas) {
     });
 }
 
-// When switching to Stitch tab, show the correct dress overlay in the stitch-canvas-container
 studioSteps.forEach((btn, idx) => {
     btn.addEventListener('click', function() {
         studioSteps.forEach(b => b.classList.remove('selected'));
         btn.classList.add('selected');
-        // Show/hide style/stitch options
         if (idx === 0) {
             document.querySelectorAll('.style-options').forEach(opt => opt.style.display = '');
             if (stitchOptions) stitchOptions.style.display = 'none';
         } else if (idx === 1) {
             document.querySelectorAll('.style-options').forEach(opt => opt.style.display = 'none');
             if (stitchOptions) stitchOptions.style.display = 'block';
-
-            // Show the current dress overlay in the stitch-canvas-container
             const mainOverlay = document.getElementById('dressOverlayImg');
             const stitchOverlay = document.getElementById('stitchDressOverlayImg');
             if (mainOverlay && stitchOverlay) {
@@ -1224,92 +1184,134 @@ studioSteps.forEach((btn, idx) => {
     });
 });
     </script>
+    <script src="firebase-secrets.js"></script>
     <script>
-    // Firebase config for the-aureon project
-    const firebaseConfig = {
-        apiKey: "AIzaSyCn-1-Lp4Cweu99s68ODDEQOX69isn3ro8",
-        authDomain: "the-aureon.firebaseapp.com",
-        projectId: "the-aureon",
-        storageBucket: "the-aureon.appspot.com",
-        messagingSenderId: "685624046929",
-        appId: "1:685624046929:web:dummyid"
-    };
-    if (!firebase.apps || !firebase.apps.length) {
-        firebase.initializeApp(firebaseConfig);
-    }
-    const auth = firebase.auth();
-
-    // --- Profile photo logic for nav (shared for all pages) ---
-    function updateNavProfile(user) {
-        const navLinks = document.querySelector('.nav-links');
-        if (!navLinks) return;
-        navLinks.querySelectorAll('.nav-profile-photo-li, .nav-join-btn-li').forEach(el => el.remove());
-        // Remove any static Join button (for SSR/static HTML)
-        navLinks.querySelectorAll('a.nav-join-btn, li').forEach(el => {
-            if (
-                el.tagName === 'LI' &&
-                el.querySelector &&
-                el.querySelector('a[href="join.html"]')
-            ) {
-                el.remove();
-            }
-        });
-        if (user) {
-            const li = document.createElement('li');
-            li.className = 'nav-profile-photo-li';
-            li.style.display = 'flex';
-            li.style.alignItems = 'center';
-            li.style.height = '100%';
-            li.style.margin = '0';
-            const img = document.createElement('img');
-            img.className = 'nav-profile-photo';
-            img.src = user.photoURL || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user.displayName || user.email || 'A') + '&background=a8b5a0&color=fff&rounded=true&size=48';
-            img.alt = 'Profile';
-            img.style.width = '38px';
-            img.style.height = '38px';
-            img.style.borderRadius = '50%';
-            img.style.objectFit = 'cover';
-            img.style.border = '2px solid #a8b5a0';
-            img.style.background = '#a8b5a0';
-            img.style.cursor = 'pointer';
-            img.title = user.displayName || user.email || 'Profile';
-            img.style.display = 'block';
-            img.style.margin = '0';
-            img.style.verticalAlign = 'middle';
-            img.onclick = function() {
-                if (confirm('Log out of aureon?')) {
-                    auth.signOut();
-                }
-            };
-            li.appendChild(img);
-            navLinks.appendChild(li);
-        } else {
-            const li = document.createElement('li');
-            li.className = 'nav-join-btn-li';
-            li.style.display = 'flex';
-            li.style.alignItems = 'center';
-            li.style.height = '100%';
-            li.style.margin = '0';
-            const a = document.createElement('a');
-            a.href = 'join.html';
-            a.className = 'nav-join-btn';
-            a.style.background = '#a8b5a0';
-            a.style.color = '#fff';
-            a.style.padding = '0.5rem 1.5rem';
-            a.style.borderRadius = '24px';
-            a.style.fontWeight = '600';
-            a.style.transition = 'background 0.2s';
-            a.textContent = 'Join';
-            li.appendChild(a);
-            navLinks.appendChild(li);
+    if (typeof firebaseConfig === 'undefined') {
+        console.error('firebaseConfig is not defined. Please provide your firebase-secrets.js file.');
+    } else {
+        if (!firebase.apps || !firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
         }
-    }
+        const auth = firebase.auth();
 
-    auth.onAuthStateChanged(function(user) {
-        updateNavProfile(user);
-    });
+        function updateNavProfile(user) {
+            const navLinks = document.querySelector('.nav-links');
+            if (!navLinks) return;
+            navLinks.querySelectorAll('.nav-profile-photo-li, .nav-join-btn-li').forEach(el => el.remove());
+            navLinks.querySelectorAll('a.nav-join-btn, li').forEach(el => {
+                if (
+                    el.tagName === 'LI' &&
+                    el.querySelector &&
+                    el.querySelector('a[href="join.html"]')
+                ) {
+                    el.remove();
+                }
+            });
+            if (user) {
+                const li = document.createElement('li');
+                li.className = 'nav-profile-photo-li';
+                li.style.display = 'flex';
+                li.style.alignItems = 'center';
+                li.style.height = '100%';
+                li.style.margin = '0';
+                const img = document.createElement('img');
+                img.className = 'nav-profile-photo';
+                img.src = user.photoURL || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user.displayName || user.email || 'A') + '&background=a8b5a0&color=fff&rounded=true&size=48';
+                img.alt = 'Profile';
+                img.style.width = '38px';
+                img.style.height = '38px';
+                img.style.borderRadius = '50%';
+                img.style.objectFit = 'cover';
+                img.style.border = '2px solid #a8b5a0';
+                img.style.background = '#a8b5a0';
+                img.style.cursor = 'pointer';
+                img.title = user.displayName || user.email || 'Profile';
+                img.style.display = 'block';
+                img.style.margin = '0';
+                img.style.verticalAlign = 'middle';
+
+                const dropdown = document.createElement('div');
+                dropdown.className = 'nav-profile-dropdown';
+                dropdown.style.position = 'absolute';
+                dropdown.style.top = '60px';
+                dropdown.style.right = '0';
+                dropdown.style.background = '#fff';
+                dropdown.style.boxShadow = '0 4px 16px rgba(168,181,160,0.13)';
+                dropdown.style.borderRadius = '12px';
+                dropdown.style.padding = '0.5rem 0';
+                dropdown.style.minWidth = '140px';
+                dropdown.style.display = 'none';
+                dropdown.style.zIndex = '2000';
+
+                const profileOption = document.createElement('a');
+                profileOption.href = 'profile.html';
+                profileOption.textContent = 'Profile';
+                profileOption.style.display = 'block';
+                profileOption.style.padding = '0.7rem 1.2rem';
+                profileOption.style.color = '#3a3a3a';
+                profileOption.style.textDecoration = 'none';
+                profileOption.style.fontWeight = '500';
+                profileOption.onmouseover = function() { this.style.background = '#f0ede8'; };
+                profileOption.onmouseout = function() { this.style.background = 'none'; };
+
+                const logoutOption = document.createElement('a');
+                logoutOption.href = '#';
+                logoutOption.textContent = 'Log Out';
+                logoutOption.style.display = 'block';
+                logoutOption.style.padding = '0.7rem 1.2rem';
+                logoutOption.style.color = '#a8b5a0';
+                logoutOption.style.textDecoration = 'none';
+                logoutOption.style.fontWeight = '500';
+                logoutOption.onmouseover = function() { this.style.background = '#f0ede8'; };
+                logoutOption.onmouseout = function() { this.style.background = 'none'; };
+                logoutOption.onclick = function(e) {
+                    e.preventDefault();
+                    auth.signOut();
+                };
+
+                dropdown.appendChild(profileOption);
+                dropdown.appendChild(logoutOption);
+                li.style.position = 'relative';
+                li.appendChild(img);
+                li.appendChild(dropdown);
+
+                img.onclick = function(e) {
+                    e.stopPropagation();
+                    dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+                };
+                document.addEventListener('click', function hideDropdown(ev) {
+                    if (!li.contains(ev.target)) {
+                        dropdown.style.display = 'none';
+                    }
+                });
+                navLinks.appendChild(li);
+            } else {
+                const li = document.createElement('li');
+                li.className = 'nav-join-btn-li';
+                li.style.display = 'flex';
+                li.style.alignItems = 'center';
+                li.style.height = '100%';
+                li.style.margin = '0';
+                const a = document.createElement('a');
+                a.href = 'join.html';
+                a.className = 'nav-join-btn';
+                a.style.background = '#a8b5a0';
+                a.style.color = '#fff';
+                a.style.padding = '0.5rem 1.5rem';
+                a.style.borderRadius = '24px';
+                a.style.fontWeight = '600';
+                a.style.transition = 'background 0.2s';
+                a.textContent = 'Join';
+                li.appendChild(a);
+                navLinks.appendChild(li);
+            }
+        }
+
+        auth.onAuthStateChanged(function(user) {
+            updateNavProfile(user);
+        });
+    }
     </script>
-    <!-- ...existing code... -->
 </body>
 </html>
 

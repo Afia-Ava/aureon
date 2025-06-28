@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile Settings | aureon</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(120deg, #f8fafc 0%, #f3f6f9 100%);
+            color: #2d2d2d;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+        .header {
+            background: #fff;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.05);
+            padding: 0.2rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            min-height: 72px;
+        }
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.3rem;
+            color: #3a3a3a;
+            text-decoration: none;
+            font-weight: 700;
+        }
+        .nav-links {
+            list-style: none;
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+            height: 48px;
+        }
+        .nav-links a {
+            text-decoration: none;
+            color: #3a3a3a;
+            font-weight: 500;
+            font-size: 0.98rem;
+            transition: color 0.2s;
+            padding: 0.1rem 0.5rem;
+        }
+        .nav-links a:hover {
+            color: #d4af37;
+        }
+        .profile-wrapper {
+            max-width: 1100px;
+            margin: 2.5rem auto 2.5rem auto;
+            background: #fff;
+            border-radius: 22px;
+            box-shadow: 0 6px 32px rgba(168,181,160,0.13), 0 1.5px 8px rgba(212,175,55,0.06);
+            display: flex;
+            min-height: 700px;
+            overflow: hidden;
+        }
+        .profile-sidebar {
+            width: 220px;
+            background: #23272f;
+            border-right: 1.5px solid #181a20;
+            display: flex;
+            flex-direction: column;
+            padding: 2.2rem 0 2.2rem 0;
+            gap: 0.5rem;
+        }
+        .sidebar-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.1rem;
+            color: #d4af37;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            margin-left: 2.2rem;
+            letter-spacing: 0.01em;
+        }
+        .sidebar-link {
+            display: block;
+            padding: 0.7rem 2.2rem;
+            font-size: 1.07rem;
+            color: #e7e7e7;
+            text-decoration: none;
+            border-left: 4px solid transparent;
+            transition: background 0.15s, border-color 0.18s, color 0.18s;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        .sidebar-link.active, .sidebar-link:hover {
+            background: #181a20;
+            border-left: 4px solid #d4af37;
+            color: #d4af37;
+        }
+        /* Profile dropdown styles */
+        .nav-profile-photo-li {
+            position: relative;
+        }
+        .nav-profile-photo {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #a8b5a0;
+            background: #a8b5a0;
+            cursor: pointer;
+            display: block;
+        }
+        .profile-dropdown {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 48px;
+            background: #23272f;
+            color: #fff;
+            min-width: 160px;
+            border-radius: 12px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.13);
+            z-index: 2000;
+            padding: 0.5rem 0;
+        }
+        .profile-dropdown.show {
+            display: block;
+        }
+        .profile-dropdown a, .profile-dropdown button {
+            display: block;
+            width: 100%;
+            background: none;
+            border: none;
+            color: #fff;
+            text-align: left;
+            padding: 0.7rem 1.2rem;
+            font-size: 1rem;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background 0.15s, color 0.15s;
+        }
+        .profile-dropdown a:hover, .profile-dropdown button:hover {
+            background: #181a20;
+            color: #d4af37;
+        }
+        .profile-content {
+            flex: 1;
+            padding: 2.5rem 3.5rem 2.5rem 3.5rem;
+            overflow-x: hidden;
+        }
+        .section-card {
+            background: none;
+            border-radius: 0;
+            box-shadow: none;
+            padding: 0 0 2.5rem 0;
+            margin-bottom: 0;
+            width: 100%;
+            border-bottom: 1.5px solid #f0f0f0;
+            display: none;
+        }
+        .section-card.active-section {
+            display: block;
+            animation: fadeIn 0.18s;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(16px);}
+            to { opacity: 1; transform: none;}
+        }
+        .section-card:last-child {
+            border-bottom: none;
+        }
+        .section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.35rem;
+            margin-bottom: 0.7rem;
+            color: #222;
+            letter-spacing: 0.01em;
+        }
+        .section-desc {
+            color: #6b6b6b;
+            font-size: 1.01rem;
+            margin-bottom: 1.2rem;
+        }
+        .profile-photo-wrap {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .profile-photo {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #d4af37;
+            background: #f6f6f6;
+            box-shadow: 0 2px 12px rgba(212,175,55,0.09);
+            transition: box-shadow 0.18s, border-color 0.18s;
+            cursor: pointer;
+        }
+        .profile-photo:hover {
+            box-shadow: 0 6px 24px rgba(212,175,55,0.18);
+            border-color: #a8b5a0;
+        }
+        .profile-fields {
+            flex: 1;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem 2.5rem;
+        }
+        .form-group {
+            margin-bottom: 1.2rem;
+            flex: 1 1 220px;
+            min-width: 220px;
+        }
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #3a3a3a;
+            letter-spacing: 0.01em;
+        }
+        input[type="text"], input[type="email"], select {
+            width: 100%;
+            padding: 0.7rem 1rem;
+            border-radius: 10px;
+            border: 1.5px solid #e4e4e4;
+            font-size: 1.08rem;
+            background: #f8fafc;
+            transition: border 0.18s;
+            margin-bottom: 0.1rem;
+        }
+        input[type="text"]:focus, input[type="email"]:focus, select:focus {
+            border: 1.5px solid #a8b5a0;
+            outline: none;
+            background: #fff;
+        }
+        input[type="file"] {
+            width: 100%;
+            padding: 0.5rem 0.2rem;
+            font-size: 1rem;
+            border: none;
+            background: none;
+        }
+        .readonly {
+            background: #f3f3f3;
+            color: #888;
+            cursor: not-allowed;
+        }
+        .action-btn, .save-btn, .danger-btn {
+            display: inline-block;
+            background: linear-gradient(90deg, #a8b5a0 60%, #d4af37 100%);
+            color: #fff;
+            border: none;
+            border-radius: 30px;
+            padding: 0.7rem 2rem;
+            font-size: 1.08rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s, box-shadow 0.18s;
+            margin-top: 0.7rem;
+            margin-right: 1rem;
+            box-shadow: 0 2px 8px rgba(168,181,160,0.08);
+            letter-spacing: 0.01em;
+        }
+        .action-btn:hover, .save-btn:hover {
+            background: linear-gradient(90deg, #d4af37 60%, #a8b5a0 100%);
+            box-shadow: 0 4px 18px rgba(212,175,55,0.13);
+        }
+        .danger-btn {
+            background: #f44336;
+            color: #fff;
+            margin-top: 0.7rem;
+            margin-right: 0;
+        }
+        .danger-btn:hover {
+            background: #d32f2f;
+        }
+        .switch-group {
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+            margin-bottom: 1.2rem;
+        }
+        .switch-label {
+            font-weight: 500;
+            color: #444;
+        }
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 24px;
+        }
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #ccc;
+            transition: .2s;
+            border-radius: 24px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .2s;
+            border-radius: 50%;
+        }
+        .switch input:checked + .slider {
+            background-color: #a8b5a0;
+        }
+        .switch input:checked + .slider:before {
+            transform: translateX(20px);
+        }
+        .section-actions {
+            margin-top: 1.5rem;
+        }
+        .link-btn {
+            color: #a8b5a0;
+            background: none;
+            border: none;
+            font-size: 1.05rem;
+            font-weight: 600;
+            text-decoration: underline;
+            cursor: pointer;
+            margin-left: 0.5rem;
+            margin-right: 0.5rem;
+            transition: color 0.18s;
+        }
+        .link-btn:hover {
+            color: #d4af37;
+        }
+        .status-msg {
+            text-align: center;
+            margin-top: 1.2rem;
+            color: #6b6b6b;
+            font-size: 1.05rem;
+            min-height: 1.2em;
+        }
+        @media (max-width: 1100px) {
+            .profile-wrapper {
+                max-width: 99vw;
+            }
+        }
+        @media (max-width: 900px) {
+            .profile-wrapper {
+                flex-direction: column;
+            }
+            .profile-sidebar {
+                background: #23272f;
+                border-right: none;
+                border-bottom: 1.5px solid #181a20;
+                padding: 0.5rem 0 0.5rem 0;
+                gap: 0.2rem;
+                overflow-x: auto;
+            }
+            .sidebar-title {
+                display: none;
+            }
+            .sidebar-link {
+                padding: 0.7rem 1.2rem;
+                font-size: 1rem;
+                border-left: none;
+                border-bottom: 3px solid transparent;
+            }
+            .sidebar-link.active, .sidebar-link:hover {
+                border-left: none;
+                border-bottom: 3px solid #d4af37;
+            }
+            .profile-content {
+                padding: 1.2rem 0.7rem 1.2rem 0.7rem;
+            }
+        }
+        @media (max-width: 600px) {
+            .profile-content {
+                padding: 0.7rem 0.2rem 0.7rem 0.2rem;
+            }
+        }
+    </style>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+</head>
+<body>
+    <header class="header">
+        <nav class="nav">
+            <a href="index.html" class="logo">aureon</a>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="studio.html">Studio</a></li>
+                <li><a href="gallery.html">Gallery</a></li>
+                <!-- Profile photo with dropdown, not a nav button -->
+                <li class="nav-profile-photo-li" id="navProfileLi" style="display:none;">
+                    <img class="nav-profile-photo" id="navProfilePhoto" src="https://ui-avatars.com/api/?name=U&background=a8b5a0&color=fff&rounded=true&size=48" alt="Profile">
+                    <div class="profile-dropdown" id="profileDropdown">
+                        <a href="profile.html">Profile</a>
+                        <button id="logoutBtn" type="button">Log out</button>
+                    </div>
+                </li>
+                <!-- Join button for guests -->
+                <li class="nav-join-btn-li" id="navJoinLi" style="display:none;">
+                    <a href="join.html" class="nav-join-btn" style="background:#a8b5a0;color:#fff;padding:0.5rem 1.5rem;border-radius:24px;font-weight:600;transition:background 0.2s;">Join</a>
+                </li>
+            </ul>
+        </nav>
+    </header>
+    <div class="profile-wrapper">
+        <nav class="profile-sidebar">
+            <div class="sidebar-title">Settings</div>
+            <a class="sidebar-link active" href="#basicInfoSection" data-section="basicInfoSection">Basic Info</a>
+            <a class="sidebar-link" href="#designPrefsSection" data-section="designPrefsSection">Design Preferences</a>
+            <a class="sidebar-link" href="#myDesignsSection" data-section="myDesignsSection">My Designs</a>
+            <a class="sidebar-link" href="#notifSettingsSection" data-section="notifSettingsSection">Notifications</a>
+            <a class="sidebar-link" href="#privacySection" data-section="privacySection">Privacy & Account</a>
+        </nav>
+        <main class="profile-content" id="profileContent">
+            <section class="section-card active-section" id="basicInfoSection">
+                <div class="section-title">Basic Information</div>
+                <div class="section-desc">Update your main profile details and personalize your presence.</div>
+                <div class="profile-photo-wrap">
+                    <div style="display:flex;flex-direction:column;align-items:center;">
+                        <img id="profilePhoto" class="profile-photo" src="https://ui-avatars.com/api/?name=U&background=a8b5a0&color=fff&rounded=true&size=100" alt="Profile Photo" title="Click to upload photo" style="cursor:pointer;" />
+                        <input type="file" id="photoURL" accept="image/*" style="display:none;" />
+                        <div id="photoStatusMsg" class="status-msg" style="margin-top:0.5rem;"></div>
+                    </div>
+                    <div class="profile-fields" id="profileFields">
+                        <div class="form-group">
+                            <label>Display Name</label>
+                            <span id="displayNameText"></span>
+                            <input type="text" id="displayName" name="displayName" autocomplete="off" maxlength="32" placeholder="Your name" style="display:none;">
+                        </div>
+                        <div class="form-group">
+                            <label>Username / Handle</label>
+                            <span id="usernameText"></span>
+                        </div>
+                        <div class="form-group">
+                            <label>Email Address</label>
+                            <span id="emailText"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="section-actions" id="basicInfoActions">
+                    <button type="button" class="action-btn" id="changePasswordBtn">Change Password</button>
+                    <button type="button" class="save-btn" id="saveBasicBtn" style="display:none;">Save Changes</button>
+                    <button type="button" class="action-btn" id="cancelEditBtn" style="display:none;">Cancel</button>
+                    <button type="button" class="action-btn" id="editBasicBtn">Edit</button>
+                    <div class="status-msg" id="statusMsgBasic"></div>
+                </div>
+            </section>
+            <section class="section-card" id="designPrefsSection">
+                <div class="section-title">Design Preferences</div>
+                <div class="section-desc">Personalize your design studio experience and default settings.</div>
+                <form id="designPrefsForm">
+                    <div class="profile-fields">
+                        <div class="form-group">
+                            <label for="defaultWearable">Default Base Wearable</label>
+                            <select id="defaultWearable" name="defaultWearable">
+                                <option value="dress">Dress</option>
+                                <option value="jacket">Jacket</option>
+                                <option value="wings">Wings</option>
+                                <option value="tote">Tote</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="moodMode">Preferred Mood Mode</label>
+                            <select id="moodMode" name="moodMode">
+                                <option value="calm">Calm</option>
+                                <option value="power">Power</option>
+                                <option value="glow">Glow</option>
+                                <option value="flow">Flow</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="colorTheme">Color Theme Preference</label>
+                            <select id="colorTheme" name="colorTheme">
+                                <option value="light">Light</option>
+                                <option value="dark">Dark</option>
+                                <option value="system">System Default</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="section-actions">
+                        <button type="submit" class="save-btn">Save Preferences</button>
+                        <div class="status-msg" id="statusMsgPrefs"></div>
+                    </div>
+                </form>
+            </section>
+            <section class="section-card" id="myDesignsSection">
+                <div class="section-title">My Designs</div>
+                <div class="section-desc">Access your saved and exported creations.</div>
+                <div class="section-actions">
+                    <button type="button" class="action-btn" id="viewMyDesignsBtn">View My Designs</button>
+                </div>
+            </section>
+            <section class="section-card" id="notifSettingsSection">
+                <div class="section-title">Notification Settings</div>
+                <div class="section-desc">Choose what you want to be notified about.</div>
+                <form id="notifPrefsForm">
+                    <div class="switch-group">
+                        <label class="switch">
+                            <input type="checkbox" id="notifTemplates">
+                            <span class="slider"></span>
+                        </label>
+                        <span class="switch-label">New templates & moods</span>
+                    </div>
+                    <div class="switch-group">
+                        <label class="switch">
+                            <input type="checkbox" id="notifRemix">
+                            <span class="slider"></span>
+                        </label>
+                        <span class="switch-label">Remix invitations</span>
+                    </div>
+                    <div class="switch-group">
+                        <label class="switch">
+                            <input type="checkbox" id="notifAuri">
+                            <span class="slider"></span>
+                        </label>
+                        <span class="switch-label">Updates from Auri</span>
+                    </div>
+                    <div class="section-actions">
+                        <button type="submit" class="save-btn">Save Notification Preferences</button>
+                        <div class="status-msg" id="statusMsgNotif"></div>
+                    </div>
+                </form>
+            </section>
+            <section class="section-card" id="privacySection">
+                <div class="section-title">Privacy & Account Controls</div>
+                <div class="section-desc">Manage your privacy and account settings.</div>
+                <div class="switch-group">
+                    <label class="switch">
+                        <input type="checkbox" id="profilePublic">
+                        <span class="slider"></span>
+                    </label>
+                    <span class="switch-label">Make profile public</span>
+                </div>
+                <div class="section-actions">
+                    <button type="button" class="link-btn" id="changeEmailBtn2">Change Email Address</button>
+                    <button type="button" class="danger-btn" id="deleteAccountBtn">Delete My Account</button>
+                </div>
+                <div style="margin-top:1.5rem;font-size:0.98rem;">
+                    <a href="terms.html" class="link-btn" style="font-size:0.98rem;">Terms of Use</a>
+                    <span style="color:#bbb;">|</span>
+                    <a href="privacy.html" class="link-btn" style="font-size:0.98rem;">Privacy Policy</a>
+                </div>
+            </section>
+        </main>
+    </div>
+    <script src="firebase-secrets.js"></script>
+    <script src="profile-photo-upload-helper.js"></script>
+    <script>
+    // Use firebaseConfig from firebase-secrets.js
+    if (typeof firebaseConfig === 'undefined') {
+        console.error('firebaseConfig is not defined. Please provide your firebase-secrets.js file.');
+    } else {
+        if (!firebase.apps || !firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const auth = firebase.auth();
+
+        function updateNavProfile(user) {
+            const navLinks = document.querySelector('.nav-links');
+            if (!navLinks) return;
+            navLinks.querySelectorAll('.nav-profile-photo-li, .nav-join-btn-li').forEach(el => el.remove());
+            navLinks.querySelectorAll('a.nav-join-btn, li').forEach(el => {
+                if (
+                    el.tagName === 'LI' &&
+                    el.querySelector &&
+                    el.querySelector('a[href="join.html"]')
+                ) {
+                    el.remove();
+                }
+            });
+            if (user) {
+                const li = document.createElement('li');
+                li.className = 'nav-profile-photo-li';
+                li.style.display = 'flex';
+                li.style.alignItems = 'center';
+                li.style.height = '100%';
+                li.style.margin = '0';
+                const img = document.createElement('img');
+                img.className = 'nav-profile-photo';
+                img.src = user.photoURL || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user.displayName || user.email || 'A') + '&background=a8b5a0&color=fff&rounded=true&size=48';
+                img.alt = 'Profile';
+                img.style.width = '38px';
+                img.style.height = '38px';
+                img.style.borderRadius = '50%';
+                img.style.objectFit = 'cover';
+                img.style.border = '2px solid #a8b5a0';
+                img.style.background = '#a8b5a0';
+                img.style.cursor = 'pointer';
+                img.title = user.displayName || user.email || 'Profile';
+                img.style.display = 'block';
+                img.style.margin = '0';
+                img.style.verticalAlign = 'middle';
+
+                // Dropdown menu
+                const dropdown = document.createElement('div');
+                dropdown.className = 'nav-profile-dropdown';
+                dropdown.style.position = 'absolute';
+                dropdown.style.top = '60px';
+                dropdown.style.right = '0';
+                dropdown.style.background = '#fff';
+                dropdown.style.boxShadow = '0 4px 16px rgba(168,181,160,0.13)';
+                dropdown.style.borderRadius = '12px';
+                dropdown.style.padding = '0.5rem 0';
+                dropdown.style.minWidth = '140px';
+                dropdown.style.display = 'none';
+                dropdown.style.zIndex = '2000';
+
+                const profileOption = document.createElement('a');
+                profileOption.href = 'profile.html';
+                profileOption.textContent = 'Profile';
+                profileOption.style.display = 'block';
+                profileOption.style.padding = '0.7rem 1.2rem';
+                profileOption.style.color = '#3a3a3a';
+                profileOption.style.textDecoration = 'none';
+                profileOption.style.fontWeight = '500';
+                profileOption.onmouseover = function() { this.style.background = '#f0ede8'; };
+                profileOption.onmouseout = function() { this.style.background = 'none'; };
+
+                const logoutOption = document.createElement('a');
+                logoutOption.href = '#';
+                logoutOption.textContent = 'Log Out';
+                logoutOption.style.display = 'block';
+                logoutOption.style.padding = '0.7rem 1.2rem';
+                logoutOption.style.color = '#a8b5a0';
+                logoutOption.style.textDecoration = 'none';
+                logoutOption.style.fontWeight = '500';
+                logoutOption.onmouseover = function() { this.style.background = '#f0ede8'; };
+                logoutOption.onmouseout = function() { this.style.background = 'none'; };
+                logoutOption.onclick = function(e) {
+                    e.preventDefault();
+                    auth.signOut();
+                };
+
+                dropdown.appendChild(profileOption);
+                dropdown.appendChild(logoutOption);
+                li.style.position = 'relative';
+                li.appendChild(img);
+                li.appendChild(dropdown);
+
+                img.onclick = function(e) {
+                    e.stopPropagation();
+                    dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+                };
+                document.addEventListener('click', function hideDropdown(ev) {
+                    if (!li.contains(ev.target)) {
+                        dropdown.style.display = 'none';
+                    }
+                });
+                navLinks.appendChild(li);
+            } else {
+                const li = document.createElement('li');
+                li.className = 'nav-join-btn-li';
+                li.style.display = 'flex';
+                li.style.alignItems = 'center';
+                li.style.height = '100%';
+                li.style.margin = '0';
+                const a = document.createElement('a');
+                a.href = 'join.html';
+                a.className = 'nav-join-btn';
+                a.style.background = '#a8b5a0';
+                a.style.color = '#fff';
+                a.style.padding = '0.5rem 1.5rem';
+                a.style.borderRadius = '24px';
+                a.style.fontWeight = '600';
+                a.style.transition = 'background 0.2s';
+                a.textContent = 'Join';
+                li.appendChild(a);
+                navLinks.appendChild(li);
+            }
+        }
+
+        function updateProfileFields(user) {
+            // Profile photo
+            const profilePhoto = document.getElementById('profilePhoto');
+            if (profilePhoto) {
+                profilePhoto.src = user.photoURL || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user.displayName || user.email || 'A') + '&background=a8b5a0&color=fff&rounded=true&size=100';
+                profilePhoto.title = 'Click to upload photo';
+            }
+            // Display name
+            const displayNameText = document.getElementById('displayNameText');
+            if (displayNameText) {
+                displayNameText.textContent = user.displayName && user.displayName.trim() ? user.displayName : '(No name)';
+            }
+            // Username/handle
+            const usernameText = document.getElementById('usernameText');
+            if (usernameText) {
+                let handle = '';
+                if (user.displayName && user.displayName.trim()) {
+                    handle = '@' + user.displayName.replace(/\s+/g, '').toLowerCase();
+                } else if (user.email) {
+                    handle = '@' + user.email.split('@')[0];
+                } else {
+                    handle = '@user';
+                }
+                usernameText.textContent = handle;
+            }
+            // Email
+            const emailText = document.getElementById('emailText');
+            if (emailText) {
+                emailText.textContent = user.email || '(No email)';
+            }
+        }
+
+        auth.onAuthStateChanged(function(user) {
+            updateNavProfile(user);
+            if (user) {
+                updateProfileFields(user);
+            }
+        });
+
+        // Photo upload logic
+        document.addEventListener('DOMContentLoaded', function() {
+            const profilePhoto = document.getElementById('profilePhoto');
+            const photoInput = document.getElementById('photoURL');
+            const photoStatusMsg = document.getElementById('photoStatusMsg');
+            if (profilePhoto && photoInput) {
+                profilePhoto.addEventListener('click', function() {
+                    photoInput.value = '';
+                    photoInput.click();
+                });
+                photoInput.addEventListener('change', async function(e) {
+                    const file = e.target.files[0];
+                    if (!file) return;
+                    if (!/^image\//.test(file.type)) {
+                        photoStatusMsg.textContent = 'Please select a valid image file.';
+                        return;
+                    }
+                    photoStatusMsg.textContent = 'Uploading photo...';
+                    try {
+                        const user = auth.currentUser;
+                        if (!user) {
+                            photoStatusMsg.textContent = 'You must be signed in.';
+                            return;
+                        }
+                        if (typeof uploadAndSetProfilePhoto !== 'function') {
+                            photoStatusMsg.textContent = 'Upload helper not loaded. Please refresh the page.';
+                            console.error('uploadAndSetProfilePhoto is not defined.');
+                            return;
+                        }
+                        // Use helper to upload and set profile photo
+                        const downloadURL = await uploadAndSetProfilePhoto(file, user);
+                        // Force reload user to get latest photoURL
+                        await user.reload();
+                        const updatedUser = auth.currentUser;
+                        // Update UI with new photoURL (prefer Firebase value, fallback to downloadURL)
+                        const newPhotoURL = (updatedUser && updatedUser.photoURL) ? updatedUser.photoURL : downloadURL;
+                        const cacheBust = '?t=' + Date.now();
+                        profilePhoto.src = newPhotoURL + cacheBust;
+                        photoStatusMsg.textContent = 'Profile photo updated!';
+                        // Update nav photo everywhere
+                        const navProfilePhoto = document.getElementById('navProfilePhoto');
+                        if (navProfilePhoto) navProfilePhoto.src = newPhotoURL + cacheBust;
+                        // If nav bar is dynamically rendered, also call updateNavProfile
+                        if (typeof updateNavProfile === 'function') updateNavProfile(updatedUser);
+                    } catch (err) {
+                        console.error('Photo upload error:', err);
+                        if (err && err.message && err.message.includes('size')) {
+                            photoStatusMsg.textContent = 'Image is too large. Please choose a smaller image.';
+                        } else if (err && err.message) {
+                            photoStatusMsg.textContent = 'Failed to upload photo: ' + err.message;
+                        } else {
+                            photoStatusMsg.textContent = 'Failed to upload photo. Please try again.';
+                        }
+                    }
+                });
+            }
+        });
+    }
+    </script>
+</body>
+</html>
