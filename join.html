@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Join | aureon</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #faf8f5;
+            color: #3a3a3a;
+            margin: 0;
+            padding: 0;
+        }
+        .header {
+            background: #fff;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.05);
+            padding: 0.2rem 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            min-height: 72px;
+        }
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.3rem;
+            color: #3a3a3a;
+            text-decoration: none;
+            font-weight: 700;
+        }
+        .nav-links {
+            list-style: none;
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+            height: 48px;
+        }
+        .nav-links a {
+            text-decoration: none;
+            color: #3a3a3a;
+            font-weight: 500;
+            font-size: 0.98rem;
+            transition: color 0.2s;
+            padding: 0.1rem 0.5rem;
+        }
+        .nav-links a:hover {
+            color: #d4af37;
+        }
+        .join-container {
+            max-width: 420px;
+            margin: 5vh auto 0 auto;
+            background: #fff;
+            border-radius: 18px;
+            box-shadow: 0 4px 24px rgba(168,181,160,0.09);
+            padding: 2.5rem 2rem 2rem 2rem;
+        }
+        .tab-bar {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 2.2rem;
+            border-bottom: 1.5px solid #ece7d8;
+        }
+        .tab-btn {
+            flex: 1;
+            background: none;
+            border: none;
+            font-size: 1.13rem;
+            font-weight: 600;
+            color: #a8b5a0;
+            padding: 1rem 0 0.8rem 0;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: color 0.18s, border-bottom 0.18s;
+        }
+        .tab-btn.active {
+            color: #d4af37;
+            border-bottom: 3px solid #d4af37;
+        }
+        .form-section {
+            display: none;
+        }
+        .form-section.active {
+            display: block;
+        }
+        .join-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+        }
+        .join-form label {
+            font-size: 1rem;
+            font-weight: 500;
+            margin-bottom: 0.3rem;
+        }
+        .join-form input[type="text"],
+        .join-form input[type="email"],
+        .join-form input[type="password"] {
+            padding: 0.8rem 1.1rem;
+            border-radius: 8px;
+            border: 1.5px solid #ece7d8;
+            font-size: 1rem;
+            background: #faf8f5;
+            transition: border 0.18s;
+        }
+        .join-form input:focus {
+            border: 1.5px solid #d4af37;
+            outline: none;
+            background: #fff;
+        }
+        .join-form button {
+            background: #a8b5a0;
+            color: #fff;
+            border: none;
+            border-radius: 30px;
+            padding: 0.9rem 0;
+            font-size: 1.08rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 0.7rem;
+            transition: background 0.2s;
+        }
+        .join-form button:hover {
+            background: #d4af37;
+        }
+        .form-footer {
+            text-align: center;
+            margin-top: 1.5rem;
+            color: #6b6b6b;
+            font-size: 0.98rem;
+        }
+        @media (max-width: 600px) {
+            .join-container {
+                max-width: 98vw;
+                padding: 1.2rem 0.5rem 1.5rem 0.5rem;
+            }
+        }
+    </style>
+    <!-- In the <head>, ensure Firebase App and Auth SDKs are loaded -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+</head>
+<body>
+    <header class="header">
+        <nav class="nav container">
+            <a href="index.html" class="logo">aureon</a>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="studio.html">Studio</a></li>
+                <li><a href="gallery.html">Gallery</a></li>
+                <li>
+                    <a href="join.html" style="background:#a8b5a0;color:#fff;padding:0.5rem 1.5rem;border-radius:24px;font-weight:600;transition:background 0.2s;">Join</a>
+                </li>
+            </ul>
+        </nav>
+    </header>
+    <div class="join-container">
+        <div class="tab-bar">
+            <button class="tab-btn active" id="loginTabBtn">Log In</button>
+            <button class="tab-btn" id="signupTabBtn">Sign Up</button>
+        </div>
+        <div class="form-section active" id="loginSection">
+            <form class="join-form" autocomplete="on">
+                <label for="login-email">Email</label>
+                <input type="email" id="login-email" name="login-email" required autocomplete="username">
+                <label for="login-password">Password</label>
+                <input type="password" id="login-password" name="login-password" required autocomplete="current-password">
+                <button type="submit">Log In</button>
+            </form>
+            <div class="form-footer">
+                Don't have an account? <a href="#" id="switchToSignup" style="color:#a8b5a0;text-decoration:underline;">Sign Up</a>
+            </div>
+        </div>
+        <div class="form-section" id="signupSection">
+            <form class="join-form" autocomplete="on">
+                <label for="signup-name">Name</label>
+                <input type="text" id="signup-name" name="signup-name" required autocomplete="name">
+                <label for="signup-email">Email</label>
+                <input type="email" id="signup-email" name="signup-email" required autocomplete="email">
+                <label for="signup-password">Password</label>
+                <input type="password" id="signup-password" name="signup-password" required autocomplete="new-password">
+                <button type="submit">Sign Up</button>
+            </form>
+            <div class="form-footer">
+                Already have an account? <a href="#" id="switchToLogin" style="color:#a8b5a0;text-decoration:underline;">Log In</a>
+            </div>
+        </div>
+    </div>
+    <script>
+        const loginTabBtn = document.getElementById('loginTabBtn');
+        const signupTabBtn = document.getElementById('signupTabBtn');
+        const loginSection = document.getElementById('loginSection');
+        const signupSection = document.getElementById('signupSection');
+        const switchToSignup = document.getElementById('switchToSignup');
+        const switchToLogin = document.getElementById('switchToLogin');
+
+        function showTab(tab) {
+            if (tab === 'login') {
+                loginTabBtn.classList.add('active');
+                signupTabBtn.classList.remove('active');
+                loginSection.classList.add('active');
+                signupSection.classList.remove('active');
+            } else {
+                signupTabBtn.classList.add('active');
+                loginTabBtn.classList.remove('active');
+                signupSection.classList.add('active');
+                loginSection.classList.remove('active');
+            }
+        }
+
+        loginTabBtn.addEventListener('click', () => showTab('login'));
+        signupTabBtn.addEventListener('click', () => showTab('signup'));
+        switchToSignup.addEventListener('click', (e) => { e.preventDefault(); showTab('signup'); });
+        switchToLogin.addEventListener('click', (e) => { e.preventDefault(); showTab('login'); });
+
+        // Firebase config for the-aureon project
+        const firebaseConfig = {
+            apiKey: "AIzaSyCn-1-Lp4Cweu99s68ODDEQOX69isn3ro8",
+            authDomain: "the-aureon.firebaseapp.com",
+            projectId: "the-aureon",
+            storageBucket: "the-aureon.appspot.com",
+            messagingSenderId: "685624046929",
+            appId: "1:685624046929:web:dummyid"
+        };
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const auth = firebase.auth();
+
+        // --- Profile photo logic for nav (shared for all pages) ---
+        function updateNavProfile(user) {
+            const navLinks = document.querySelector('.nav-links');
+            if (!navLinks) return;
+            // Remove any existing profile or join button
+            navLinks.querySelectorAll('.nav-profile-photo-li, .nav-join-btn-li').forEach(el => el.remove());
+            // Remove any static Join button (for SSR/static HTML)
+            navLinks.querySelectorAll('a.nav-join-btn, li').forEach(el => {
+                if (
+                    el.tagName === 'LI' &&
+                    el.querySelector &&
+                    el.querySelector('a[href="join.html"]')
+                ) {
+                    el.remove();
+                }
+            });
+            if (user) {
+                // Add profile photo circle
+                const li = document.createElement('li');
+                li.className = 'nav-profile-photo-li';
+                li.style.display = 'flex';
+                li.style.alignItems = 'center';
+                li.style.height = '100%';
+                li.style.margin = '0';
+                const img = document.createElement('img');
+                img.className = 'nav-profile-photo';
+                img.src = user.photoURL || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user.displayName || user.email || 'A') + '&background=a8b5a0&color=fff&rounded=true&size=48';
+                img.alt = 'Profile';
+                img.style.width = '38px';
+                img.style.height = '38px';
+                img.style.borderRadius = '50%';
+                img.style.objectFit = 'cover';
+                img.style.border = '2px solid #a8b5a0';
+                img.style.background = '#a8b5a0';
+                img.style.cursor = 'pointer';
+                img.title = user.displayName || user.email || 'Profile';
+                img.style.display = 'block';
+                img.style.margin = '0';
+                img.style.verticalAlign = 'middle';
+                img.onclick = function() {
+                    if (confirm('Log out of aureon?')) {
+                        auth.signOut();
+                    }
+                };
+                li.appendChild(img);
+                navLinks.appendChild(li);
+            } else {
+                // Add back the Join button
+                const li = document.createElement('li');
+                li.className = 'nav-join-btn-li';
+                li.style.display = 'flex';
+                li.style.alignItems = 'center';
+                li.style.height = '100%';
+                li.style.margin = '0';
+                const a = document.createElement('a');
+                a.href = 'join.html';
+                a.className = 'nav-join-btn';
+                a.style.background = '#a8b5a0';
+                a.style.color = '#fff';
+                a.style.padding = '0.5rem 1.5rem';
+                a.style.borderRadius = '24px';
+                a.style.fontWeight = '600';
+                a.style.transition = 'background 0.2s';
+                a.textContent = 'Join';
+                li.appendChild(a);
+                navLinks.appendChild(li);
+            }
+        }
+
+        // Listen for auth state changes and update nav
+        auth.onAuthStateChanged(function(user) {
+            updateNavProfile(user);
+        });
+
+        // Login form
+        document.querySelector('#loginSection form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value.trim();
+            const password = document.getElementById('login-password').value;
+            auth.signInWithEmailAndPassword(email, password)
+                .then(() => {
+                    alert('Logged in!');
+                    window.location.href = "studio.html";
+                })
+                .catch(err => {
+                    alert(err.message.replace("Firebase:", "").trim());
+                });
+        });
+
+        // Signup form
+        document.querySelector('#signupSection form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const name = document.getElementById('signup-name').value.trim();
+            const email = document.getElementById('signup-email').value.trim();
+            const password = document.getElementById('signup-password').value;
+            auth.createUserWithEmailAndPassword(email, password)
+                .then(userCredential => {
+                    return userCredential.user.updateProfile({ displayName: name });
+                })
+                .then(() => {
+                    alert('Account created! You are now logged in.');
+                    window.location.href = "studio.html";
+                })
+                .catch(err => {
+                    alert(err.message.replace("Firebase:", "").trim());
+                });
+        });
+    </script>
+</body>
+</html>
