@@ -38,7 +38,7 @@
         }
         .logo {
             font-family: 'Playfair Display', serif;
-            font-size: 1.3rem;
+            font-size: 2.1rem;
             color: #3a3a3a;
             text-decoration: none;
             font-weight: 700;
@@ -306,6 +306,9 @@
             margin-bottom: 1.2rem;
             justify-content: flex-start;
             align-items: flex-end;
+            background: #fff; /* Ensure white background behind wing styles */
+            border-radius: 18px;
+            padding: 1.2rem 0;
         }
         .dress-style-demo-box {
             background: linear-gradient(135deg, #f8f6f2 60%, #e8e4f0 100%);
@@ -442,6 +445,7 @@
     <!-- Add Firebase App and Auth SDKs in the <head> if not already present -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
     <header class="header">
@@ -581,16 +585,9 @@
                                     <div class="dress-style-demo-box" data-style="wing2">
                                         <div class="dress-style-demo-imgbox">
                                             <img src="asset/wings-cover.jpg" alt="Wings" class="demo-mannequin-img" />
-                                            <img src="asset/wing2.png" alt="Wing 2" class="demo-dress-img" />
+                                            <img src="asset/wing3.png" alt="Wing 2" class="demo-dress-img" />
                                         </div>
                                         <div class="dress-style-demo-label">Wing 2</div>
-                                    </div>
-                                    <div class="dress-style-demo-box" data-style="wing3">
-                                        <div class="dress-style-demo-imgbox">
-                                            <img src="asset/wings-cover.jpg" alt="Wings" class="demo-mannequin-img" />
-                                            <img src="asset/wing3.png" alt="Wing 3" class="demo-dress-img" />
-                                        </div>
-                                        <div class="dress-style-demo-label">Wing 3</div>
                                     </div>
                                 </div>
                                 <div class="dress-style-demo-grid style-options" data-base="Jacket" style="display:none;">
@@ -700,8 +697,8 @@
                                         <span style="width:38px;height:38px;display:inline-block;position:relative;">
                                             <span style="position:absolute;left:8px;top:28px;width:22px;height:2px;background:#a8b5a0;"></span>
                                             <span style="position:absolute;left:10px;top:18px;width:2px;height:12px;background:#a8b5a0;"></span>
-                                            <span style="position:absolute;left:18px;top:18px;width:2px;height:12px;background:#a8b5a0;"></span>
-                                            <span style="position:absolute;left:26px;top:18px;width:2px;height:12px;background:#a8b5a0;"></span>
+                                            <span style="position:absolute;left=18px;top:18px;width:2px;height:12px;background:#a8b5a0;"></span>
+                                            <span style="position:absolute;left:26px;top:18px;width=2px;height:12px;background:#a8b5a0;"></span>
                                         </span>
                                         <span style="font-size:1rem;color:#6b6b6b;">Blanket</span>
                                     </div>
@@ -725,6 +722,9 @@
                                 </div>
                                 <div id="stitch-canvas-container" style="position:relative;width:100%;max-width:340px;height:510px;background:none;border-radius:18px;box-shadow:0 2px 12px rgba(0,0,0,0.07);margin:0 auto;">
                                     <canvas id="stitch-canvas" width="340" height="510" style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:10;pointer-events:auto;cursor:crosshair;background:transparent;"></canvas>
+                                    <!-- If you want to draw over a picture, add an <img> below the canvas, not above it -->
+                                    <!-- Example: -->
+                                    <!-- <img id="stitch-bg-img" src="your-image.png" style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:1;pointer-events:none;"> -->
                                 </div>
                             </div>
                         </div>
@@ -735,8 +735,17 @@
                     <div class="customizer-right" style="flex:1.2;min-width:0;">
                         <div class="preview-area" id="dress-preview-area" style="position:relative;">
         <div class="mannequin-3d-container" id="mannequin3d" style="width:100%;max-width:340px;height:510px;margin:0 auto;position:relative;">
-            <img src="asset/dress-mannequin.jpg" class="mannequin-3d-img" id="mannequin3dimg" alt="Dress Mannequin" draggable="false" style="width:100%;height:100%;object-fit:contain;user-select:none;pointer-events:none;" />
-            <img src="asset/style1.png" class="dress-overlay-img" id="dressOverlayImg" alt="Dress Overlay" style="position:absolute;top:0;left:0;width:100%;height:auto;aspect-ratio:340/510;pointer-events:none;z-index:2;display:block;" />
+            <!-- Base mannequin image -->
+            <img src="asset/dress-mannequin.jpg" class="mannequin-3d-img" id="mannequin3dimg"
+                 alt="Dress Mannequin" draggable="false"
+                 style="width:100%;height:100%;object-fit:contain;user-select:none;pointer-events:none;z-index:1;position:absolute;top:0;left:0;" />
+            <!-- Overlay image (dress, wings, etc) -->
+            <img src="asset/style1.png" class="dress-overlay-img" id="dressOverlayImg"
+                 alt="Dress Overlay"
+                 style="position:absolute;top:0;left:0;width:100%;height:100%;aspect-ratio:340/510;pointer-events:none;z-index:2;display:block;" />
+            <!-- Stitch canvas on top -->
+            <canvas id="stitch-canvas-preview" width="340" height="510"
+                    style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:3;pointer-events:auto;cursor:crosshair;background:transparent;"></canvas>
         </div>
     </div>
                     </div>
@@ -809,8 +818,7 @@ const overlayImages = {
     style3: "asset/style3.png",
     style4: "asset/style4.png",
     wing1: "asset/wing1.png",
-    wing2: "asset/wing2.png",
-    wing3: "asset/wing3.png",
+    wing2: "asset/wing3.png", // wing2 now points to wing3.png
     jacket1: "asset/jacket1.png",
     jacket2: "asset/jacket2.png",
     bag1: "asset/bag1.png",
@@ -951,122 +959,30 @@ studioSteps.forEach((btn, idx) => {
     });
 });
 
-let selectedThreadColor = "#d4af37";
-let selectedStitchStyle = "zigzag";
-let markerType = "stitch";
-const colorEls = document.querySelectorAll('.thread-color');
-const stitchEls = document.querySelectorAll('.stitch-palette');
+// --- Stitch Drawing Logic (robust, works for both mouse and touch) ---
 const stitchCanvas = document.getElementById('stitch-canvas');
-const markerTypeSelect = document.getElementById('marker-type-select');
-const undoBtn = document.getElementById('undo-stitch-btn');
-const redoBtn = document.getElementById('redo-stitch-btn');
 let drawing = false;
 let lastPoint = null;
 let undoStack = [];
 let redoStack = [];
+let selectedThreadColor = "#d4af37";
+let selectedStitchStyle = "zigzag";
+let markerType = "stitch";
 
-colorEls.forEach(el => {
-    el.addEventListener('click', function() {
-        colorEls.forEach(c => c.style.border = '2px solid #ece7d8');
-        this.style.border = '2px solid #d4af37';
-        selectedThreadColor = this.getAttribute('data-color');
-    });
-});
-if (colorEls[0]) colorEls[0].style.border = '2px solid #d4af37';
-
-stitchEls.forEach(el => {
-    el.addEventListener('click', function() {
-        stitchEls.forEach(s => s.style.border = '2px solid #ece7d8');
-        this.style.border = '2px solid #d4af37';
-        selectedStitchStyle = this.getAttribute('data-stitch');
-    });
-});
-if (stitchEls[0]) stitchEls[0].style.border = '2px solid #d4af37';
-
-if (markerTypeSelect) {
-    markerTypeSelect.addEventListener('change', function() {
-        markerType = this.value;
-    });
-}
-
-if (stitchCanvas) {
-    const ctx = stitchCanvas.getContext('2d');
-    function saveState() {
-        undoStack.push(stitchCanvas.toDataURL());
-        if (undoStack.length > 100) undoStack.shift();
-        redoStack.length = 0;
-    }
-    function restoreState(stackFrom, stackTo) {
-        if (stackFrom.length === 0) return;
-        stackTo.push(stitchCanvas.toDataURL());
-        const img = new window.Image();
-        img.onload = function() {
-            ctx.clearRect(0, 0, stitchCanvas.width, stitchCanvas.height);
-            ctx.drawImage(img, 0, 0);
-        };
-        img.src = stackFrom.pop();
-    }
-    stitchCanvas.addEventListener('mousedown', function(e) {
-        drawing = true;
-        lastPoint = getCanvasPos(e);
-        saveState();
-    });
-    stitchCanvas.addEventListener('mousemove', function(e) {
-        if (!drawing) return;
-        const pt = getCanvasPos(e);
-        if (markerType === "marker") {
-            drawMarker(lastPoint, pt, selectedThreadColor, ctx);
-        } else {
-            drawStitch(lastPoint, pt, selectedThreadColor, selectedStitchStyle, ctx);
-        }
-        lastPoint = pt;
-    });
-    stitchCanvas.addEventListener('mouseup', function() {
-        drawing = false;
-        lastPoint = null;
-    });
-    stitchCanvas.addEventListener('mouseleave', function() {
-        drawing = false;
-        lastPoint = null;
-    });
-    stitchCanvas.addEventListener('touchstart', function(e) {
-        e.preventDefault();
-        drawing = true;
-        lastPoint = getCanvasPos(e.touches[0]);
-        saveState();
-    });
-    stitchCanvas.addEventListener('touchmove', function(e) {
-        e.preventDefault();
-        if (!drawing) return;
-        const pt = getCanvasPos(e.touches[0]);
-        if (markerType === "marker") {
-            drawMarker(lastPoint, pt, selectedThreadColor, ctx);
-        } else {
-            drawStitch(lastPoint, pt, selectedThreadColor, selectedStitchStyle, ctx);
-        }
-        lastPoint = pt;
-    });
-    stitchCanvas.addEventListener('touchend', function() {
-        drawing = false;
-        lastPoint = null;
-    });
-    if (undoBtn) {
-        undoBtn.addEventListener('click', function() {
-            restoreState(undoStack, redoStack);
-        });
-    }
-    if (redoBtn) {
-        redoBtn.addEventListener('click', function() {
-            restoreState(redoStack, undoStack);
-        });
-    }
-}
-
+// Helper: get mouse/touch position relative to canvas
 function getCanvasPos(e) {
     const rect = stitchCanvas.getBoundingClientRect();
+    let clientX, clientY;
+    if (e.touches && e.touches.length) {
+        clientX = e.touches[0].clientX;
+        clientY = e.touches[0].clientY;
+    } else {
+        clientX = e.clientX;
+        clientY = e.clientY;
+    }
     return {
-        x: (e.clientX - rect.left) * (stitchCanvas.width / rect.width),
-        y: (e.clientY - rect.top) * (stitchCanvas.height / rect.height)
+        x: (clientX - rect.left) * (stitchCanvas.width / rect.width),
+        y: (clientY - rect.top) * (stitchCanvas.height / rect.height)
     };
 }
 
@@ -1154,164 +1070,234 @@ function drawMarker(from, to, color, ctx) {
     ctx.restore();
 }
 
-if (clearBtn && stitchCanvas) {
-    clearBtn.addEventListener('click', function() {
-        const ctx = stitchCanvas.getContext('2d');
-        ctx.clearRect(0, 0, stitchCanvas.width, stitchCanvas.height);
+if (stitchCanvas) {
+    const ctx = stitchCanvas.getContext('2d');
+    function saveState() {
+        undoStack.push(stitchCanvas.toDataURL());
+        if (undoStack.length > 100) undoStack.shift();
+        redoStack.length = 0;
+    }
+    function restoreState(stackFrom, stackTo) {
+        if (stackFrom.length === 0) return;
+        stackTo.push(stitchCanvas.toDataURL());
+        const img = new window.Image();
+        img.onload = function() {
+            ctx.clearRect(0, 0, stitchCanvas.width, stitchCanvas.height);
+            ctx.drawImage(img, 0, 0);
+        };
+        img.src = stackFrom.pop();
+    }
+
+    // Mouse events
+    stitchCanvas.addEventListener('mousedown', function(e) {
+        drawing = true;
+        lastPoint = getCanvasPos(e);
+        saveState();
     });
+    stitchCanvas.addEventListener('mousemove', function(e) {
+        if (!drawing) return;
+        const pt = getCanvasPos(e);
+        if (markerType === "marker") {
+            drawMarker(lastPoint, pt, selectedThreadColor, ctx);
+        } else {
+            drawStitch(lastPoint, pt, selectedThreadColor, selectedStitchStyle, ctx);
+        }
+        lastPoint = pt;
+    });
+    stitchCanvas.addEventListener('mouseup', function() {
+        drawing = false;
+        lastPoint = null;
+    });
+    stitchCanvas.addEventListener('mouseleave', function() {
+        drawing = false;
+        lastPoint = null;
+    });
+
+    // Touch events
+    stitchCanvas.addEventListener('touchstart', function(e) {
+        e.preventDefault();
+        drawing = true;
+        lastPoint = getCanvasPos(e);
+        saveState();
+    }, { passive: false });
+    stitchCanvas.addEventListener('touchmove', function(e) {
+        e.preventDefault();
+        if (!drawing) return;
+        const pt = getCanvasPos(e);
+        if (markerType === "marker") {
+            drawMarker(lastPoint, pt, selectedThreadColor, ctx);
+        } else {
+            drawStitch(lastPoint, pt, selectedThreadColor, selectedStitchStyle, ctx);
+        }
+        lastPoint = pt;
+    }, { passive: false });
+    stitchCanvas.addEventListener('touchend', function() {
+        drawing = false;
+        lastPoint = null;
+    });
+
+    // Undo/Redo
+    document.getElementById('undo-stitch-btn').onclick = function() {
+        restoreState(undoStack, redoStack);
+    };
+    document.getElementById('redo-stitch-btn').onclick = function() {
+        restoreState(redoStack, undoStack);
+    };
 }
 
-studioSteps.forEach((btn, idx) => {
-    btn.addEventListener('click', function() {
-        studioSteps.forEach(b => b.classList.remove('selected'));
-        btn.classList.add('selected');
-        if (idx === 0) {
-            document.querySelectorAll('.style-options').forEach(opt => opt.style.display = '');
-            if (stitchOptions) stitchOptions.style.display = 'none';
-        } else if (idx === 1) {
-            document.querySelectorAll('.style-options').forEach(opt => opt.style.display = 'none');
-            if (stitchOptions) stitchOptions.style.display = 'block';
-            const mainOverlay = document.getElementById('dressOverlayImg');
-            const stitchOverlay = document.getElementById('stitchDressOverlayImg');
-            if (mainOverlay && stitchOverlay) {
-                stitchOverlay.src = mainOverlay.src;
-                stitchOverlay.style.opacity = 1;
-            }
-        } else {
-            document.querySelectorAll('.style-options').forEach(opt => opt.style.display = 'none');
-            if (stitchOptions) stitchOptions.style.display = 'none';
-        }
+// Color and style selection
+document.querySelectorAll('.thread-color').forEach(el => {
+    el.addEventListener('click', function() {
+        document.querySelectorAll('.thread-color').forEach(c => c.style.border = '2px solid #ece7d8');
+        this.style.border = '2px solid #d4af37';
+        selectedThreadColor = this.getAttribute('data-color');
     });
 });
-    </script>
-    <script src="firebase-secrets.js"></script>
-    <script>
-    if (typeof firebaseConfig === 'undefined') {
-        console.error('firebaseConfig is not defined. Please provide your firebase-secrets.js file.');
-    } else {
-        if (!firebase.apps || !firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
-        const auth = firebase.auth();
+document.querySelectorAll('.stitch-palette').forEach(el => {
+    el.addEventListener('click', function() {
+        document.querySelectorAll('.stitch-palette').forEach(s => s.style.border = '2px solid #ece7d8');
+        this.style.border = '2px solid #d4af37';
+        selectedStitchStyle = this.getAttribute('data-stitch');
+    });
+});
+document.getElementById('marker-type-select').addEventListener('change', function() {
+    markerType = this.value;
+});
+</script>
+<script src="firebase-secrets.js"></script>
+<script>
+if (typeof firebaseConfig === 'undefined') {
+    console.error('firebaseConfig is not defined. Please provide your firebase-secrets.js file.');
+} else {
+    if (!firebase.apps || !firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
+    const auth = firebase.auth();
+    const db = firebase.firestore();
 
-        function updateNavProfile(user) {
-            const navLinks = document.querySelector('.nav-links');
-            if (!navLinks) return;
-            navLinks.querySelectorAll('.nav-profile-photo-li, .nav-join-btn-li').forEach(el => el.remove());
-            navLinks.querySelectorAll('a.nav-join-btn, li').forEach(el => {
-                if (
-                    el.tagName === 'LI' &&
-                    el.querySelector &&
-                    el.querySelector('a[href="join.html"]')
-                ) {
-                    el.remove();
+    function updateNavProfile(user) {
+        const navLinks = document.querySelector('.nav-links');
+        if (!navLinks) return;
+        navLinks.querySelectorAll('.nav-profile-photo-li, .nav-join-btn-li').forEach(el => el.remove());
+        navLinks.querySelectorAll('a.nav-join-btn, li').forEach(el => {
+            if (
+                el.tagName === 'LI' &&
+                el.querySelector &&
+                el.querySelector('a[href="join.html"]')
+            ) {
+                el.remove();
+            }
+        });
+        if (user) {
+            const li = document.createElement('li');
+            li.className = 'nav-profile-photo-li';
+            li.style.display = 'flex';
+            li.style.alignItems = 'center';
+            li.style.height = '100%';
+            li.style.margin = '0';
+            const img = document.createElement('img');
+            img.className = 'nav-profile-photo';
+            img.alt = 'Profile';
+            img.style.width = '38px';
+            img.style.height = '38px';
+            img.style.borderRadius = '50%';
+            img.style.objectFit = 'cover';
+            img.style.border = '2px solid #a8b5a0';
+            img.style.background = '#a8b5a0';
+            img.style.cursor = 'pointer';
+            img.title = user.displayName || user.email || 'Profile';
+            img.style.display = 'block';
+            img.style.margin = '0';
+            img.style.verticalAlign = 'middle';
+            // Set default first, then update with Firestore photoBase64 if available
+            img.src = user.photoURL || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user.displayName || user.email || 'A') + '&background=a8b5a0&color=fff&rounded=true&size=48';
+            db.collection('users').doc(user.uid).get().then(doc => {
+                const data = doc.data();
+                if (data && data.photoBase64) {
+                    img.src = data.photoBase64;
                 }
             });
-            if (user) {
-                const li = document.createElement('li');
-                li.className = 'nav-profile-photo-li';
-                li.style.display = 'flex';
-                li.style.alignItems = 'center';
-                li.style.height = '100%';
-                li.style.margin = '0';
-                const img = document.createElement('img');
-                img.className = 'nav-profile-photo';
-                img.src = user.photoURL || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user.displayName || user.email || 'A') + '&background=a8b5a0&color=fff&rounded=true&size=48';
-                img.alt = 'Profile';
-                img.style.width = '38px';
-                img.style.height = '38px';
-                img.style.borderRadius = '50%';
-                img.style.objectFit = 'cover';
-                img.style.border = '2px solid #a8b5a0';
-                img.style.background = '#a8b5a0';
-                img.style.cursor = 'pointer';
-                img.title = user.displayName || user.email || 'Profile';
-                img.style.display = 'block';
-                img.style.margin = '0';
-                img.style.verticalAlign = 'middle';
+            const dropdown = document.createElement('div');
+            dropdown.className = 'nav-profile-dropdown';
+            dropdown.style.position = 'absolute';
+            dropdown.style.top = '60px';
+            dropdown.style.right = '0';
+            dropdown.style.background = '#fff';
+            dropdown.style.boxShadow = '0 4px 16px rgba(168,181,160,0.13)';
+            dropdown.style.borderRadius = '12px';
+            dropdown.style.padding = '0.5rem 0';
+            dropdown.style.minWidth = '140px';
+            dropdown.style.display = 'none';
+            dropdown.style.zIndex = '2000';
 
-                const dropdown = document.createElement('div');
-                dropdown.className = 'nav-profile-dropdown';
-                dropdown.style.position = 'absolute';
-                dropdown.style.top = '60px';
-                dropdown.style.right = '0';
-                dropdown.style.background = '#fff';
-                dropdown.style.boxShadow = '0 4px 16px rgba(168,181,160,0.13)';
-                dropdown.style.borderRadius = '12px';
-                dropdown.style.padding = '0.5rem 0';
-                dropdown.style.minWidth = '140px';
-                dropdown.style.display = 'none';
-                dropdown.style.zIndex = '2000';
+            const profileOption = document.createElement('a');
+            profileOption.href = 'profile.html';
+            profileOption.textContent = 'Profile';
+            profileOption.style.display = 'block';
+            profileOption.style.padding = '0.7rem 1.2rem';
+            profileOption.style.color = '#3a3a3a';
+            profileOption.style.textDecoration = 'none';
+            profileOption.style.fontWeight = '500';
+            profileOption.onmouseover = function() { this.style.background = '#f0ede8'; };
+            profileOption.onmouseout = function() { this.style.background = 'none'; };
 
-                const profileOption = document.createElement('a');
-                profileOption.href = 'profile.html';
-                profileOption.textContent = 'Profile';
-                profileOption.style.display = 'block';
-                profileOption.style.padding = '0.7rem 1.2rem';
-                profileOption.style.color = '#3a3a3a';
-                profileOption.style.textDecoration = 'none';
-                profileOption.style.fontWeight = '500';
-                profileOption.onmouseover = function() { this.style.background = '#f0ede8'; };
-                profileOption.onmouseout = function() { this.style.background = 'none'; };
+            const logoutOption = document.createElement('a');
+            logoutOption.href = '#';
+            logoutOption.textContent = 'Log Out';
+            logoutOption.style.display = 'block';
+            logoutOption.style.padding = '0.7rem 1.2rem';
+            logoutOption.style.color = '#a8b5a0';
+            logoutOption.style.textDecoration = 'none';
+            logoutOption.style.fontWeight = '500';
+            logoutOption.onmouseover = function() { this.style.background = '#f0ede8'; };
+            logoutOption.onmouseout = function() { this.style.background = 'none'; };
+            logoutOption.onclick = function(e) {
+                e.preventDefault();
+                auth.signOut();
+            };
 
-                const logoutOption = document.createElement('a');
-                logoutOption.href = '#';
-                logoutOption.textContent = 'Log Out';
-                logoutOption.style.display = 'block';
-                logoutOption.style.padding = '0.7rem 1.2rem';
-                logoutOption.style.color = '#a8b5a0';
-                logoutOption.style.textDecoration = 'none';
-                logoutOption.style.fontWeight = '500';
-                logoutOption.onmouseover = function() { this.style.background = '#f0ede8'; };
-                logoutOption.onmouseout = function() { this.style.background = 'none'; };
-                logoutOption.onclick = function(e) {
-                    e.preventDefault();
-                    auth.signOut();
-                };
+            dropdown.appendChild(profileOption);
+            dropdown.appendChild(logoutOption);
+            li.style.position = 'relative';
+            li.appendChild(img);
+            li.appendChild(dropdown);
 
-                dropdown.appendChild(profileOption);
-                dropdown.appendChild(logoutOption);
-                li.style.position = 'relative';
-                li.appendChild(img);
-                li.appendChild(dropdown);
-
-                img.onclick = function(e) {
-                    e.stopPropagation();
-                    dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
-                };
-                document.addEventListener('click', function hideDropdown(ev) {
-                    if (!li.contains(ev.target)) {
-                        dropdown.style.display = 'none';
-                    }
-                });
-                navLinks.appendChild(li);
-            } else {
-                const li = document.createElement('li');
-                li.className = 'nav-join-btn-li';
-                li.style.display = 'flex';
-                li.style.alignItems = 'center';
-                li.style.height = '100%';
-                li.style.margin = '0';
-                const a = document.createElement('a');
-                a.href = 'join.html';
-                a.className = 'nav-join-btn';
-                a.style.background = '#a8b5a0';
-                a.style.color = '#fff';
-                a.style.padding = '0.5rem 1.5rem';
-                a.style.borderRadius = '24px';
-                a.style.fontWeight = '600';
-                a.style.transition = 'background 0.2s';
-                a.textContent = 'Join';
-                li.appendChild(a);
-                navLinks.appendChild(li);
-            }
+            img.onclick = function(e) {
+                e.stopPropagation();
+                dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+            };
+            document.addEventListener('click', function hideDropdown(ev) {
+                if (!li.contains(ev.target)) {
+                    dropdown.style.display = 'none';
+                }
+            });
+            navLinks.appendChild(li);
+        } else {
+            const li = document.createElement('li');
+            li.className = 'nav-join-btn-li';
+            li.style.display = 'flex';
+            li.style.alignItems = 'center';
+            li.style.height = '100%';
+            li.style.margin = '0';
+            const a = document.createElement('a');
+            a.href = 'join.html';
+            a.className = 'nav-join-btn';
+            a.style.background = '#a8b5a0';
+            a.style.color = '#fff';
+            a.style.padding = '0.5rem 1.5rem';
+            a.style.borderRadius = '24px';
+            a.style.fontWeight = '600';
+            a.style.transition = 'background 0.2s';
+            a.textContent = 'Join';
+            li.appendChild(a);
+            navLinks.appendChild(li);
         }
-
-        auth.onAuthStateChanged(function(user) {
-            updateNavProfile(user);
-        });
     }
-    </script>
+
+    auth.onAuthStateChanged(function(user) {
+        updateNavProfile(user);
+    });
+}
+</script>
 </body>
 </html>
-

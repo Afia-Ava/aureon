@@ -65,7 +65,7 @@
 
         .logo {
             font-family: 'Playfair Display', serif;
-            font-size: 1.3rem;
+            font-size: 2.1rem;
             color: #3a3a3a;
             text-decoration: none;
             font-weight: 700;
@@ -524,6 +524,7 @@
     </style>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
     <header class="header">
@@ -533,8 +534,14 @@
                 <li><a href="index.html">Home</a></li>
                 <li><a href="studio.html">Studio</a></li>
                 <li><a href="gallery.html">Gallery</a></li>
-                <li>
-                    <a href="join.html" style="background:#a8b5a0;color:#fff;padding:0.5rem 1.5rem;border-radius:24px;font-weight:600;transition:background 0.2s;">Join</a>
+                <li class="nav-profile-photo-li" id="navProfileLi" style="display:none;">
+                    <img class="nav-profile-photo" id="navProfilePhoto"
+                         src="https://ui-avatars.com/api/?name=U&background=a8b5a0&color=fff&rounded=true&size=48"
+                         alt="Profile" style="width:38px;height:38px;border-radius:50%;object-fit:cover;border:2px solid #a8b5a0;background:#a8b5a0;cursor:pointer;">
+                    <!-- Optionally add dropdown here -->
+                </li>
+                <li class="nav-join-btn-li" id="navJoinLi" style="display:none;">
+                    <a href="join.html" class="nav-join-btn" style="background:#a8b5a0;color:#fff;padding:0.5rem 1.5rem;border-radius:24px;font-weight:600;transition:background 0.2s;">Join</a>
                 </li>
             </ul>
         </nav>
@@ -735,7 +742,6 @@
                 ripple.style.top = (e.offsetY - 30) + 'px';
                 ripple.style.width = ripple.style.height = '60px';
                 ripple.style.background = 'rgba(168,181,160,0.13)';
-                ripple.style.borderRadius = '50%';
                 ripple.style.pointerEvents = 'none';
                 ripple.style.opacity = '0.7';
                 ripple.style.transform = 'scale(0)';
@@ -753,7 +759,6 @@
     </script>
     <script src="firebase-secrets.js"></script>
     <script>
-    // Use firebaseConfig from firebase-secrets.js
     if (typeof firebaseConfig === 'undefined') {
         console.error('firebaseConfig is not defined. Please provide your firebase-secrets.js file.');
     } else {
@@ -761,125 +766,43 @@
             firebase.initializeApp(firebaseConfig);
         }
         const auth = firebase.auth();
+        const db = firebase.firestore();
 
-        function updateNavProfile(user) {
-            const navLinks = document.querySelector('.nav-links');
-            if (!navLinks) return;
-            navLinks.querySelectorAll('.nav-profile-photo-li, .nav-join-btn-li').forEach(el => el.remove());
-            navLinks.querySelectorAll('a.nav-join-btn, li').forEach(el => {
-                if (
-                    el.tagName === 'LI' &&
-                    el.querySelector &&
-                    el.querySelector('a[href="join.html"]')
-                ) {
-                    el.remove();
-                }
-            });
+        function showProfileNav(user) {
+            const navProfileLi = document.getElementById('navProfileLi');
+            const navJoinLi = document.getElementById('navJoinLi');
             if (user) {
-                const li = document.createElement('li');
-                li.className = 'nav-profile-photo-li';
-                li.style.display = 'flex';
-                li.style.alignItems = 'center';
-                li.style.height = '100%';
-                li.style.margin = '0';
-                const img = document.createElement('img');
-                img.className = 'nav-profile-photo';
-                img.src = user.photoURL || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user.displayName || user.email || 'A') + '&background=a8b5a0&color=fff&rounded=true&size=48';
-                img.alt = 'Profile';
-                img.style.width = '38px';
-                img.style.height = '38px';
-                img.style.borderRadius = '50%';
-                img.style.objectFit = 'cover';
-                img.style.border = '2px solid #a8b5a0';
-                img.style.background = '#a8b5a0';
-                img.style.cursor = 'pointer';
-                img.title = user.displayName || user.email || 'Profile';
-                img.style.display = 'block';
-                img.style.margin = '0';
-                img.style.verticalAlign = 'middle';
+                if (navProfileLi) navProfileLi.style.display = '';
+                if (navJoinLi) navJoinLi.style.display = 'none';
+            } else {
+                if (navProfileLi) navProfileLi.style.display = 'none';
+                if (navJoinLi) navJoinLi.style.display = '';
+            }
+        }
 
-                const dropdown = document.createElement('div');
-                dropdown.className = 'nav-profile-dropdown';
-                dropdown.style.position = 'absolute';
-                dropdown.style.top = '60px';
-                dropdown.style.right = '0';
-                dropdown.style.background = '#fff';
-                dropdown.style.boxShadow = '0 4px 16px rgba(168,181,160,0.13)';
-                dropdown.style.borderRadius = '12px';
-                dropdown.style.padding = '0.5rem 0';
-                dropdown.style.minWidth = '140px';
-                dropdown.style.display = 'none';
-                dropdown.style.zIndex = '2000';
-
-                const profileOption = document.createElement('a');
-                profileOption.href = 'profile.html';
-                profileOption.textContent = 'Profile';
-                profileOption.style.display = 'block';
-                profileOption.style.padding = '0.7rem 1.2rem';
-                profileOption.style.color = '#3a3a3a';
-                profileOption.style.textDecoration = 'none';
-                profileOption.style.fontWeight = '500';
-                profileOption.onmouseover = function() { this.style.background = '#f0ede8'; };
-                profileOption.onmouseout = function() { this.style.background = 'none'; };
-
-                const logoutOption = document.createElement('a');
-                logoutOption.href = '#';
-                logoutOption.textContent = 'Log Out';
-                logoutOption.style.display = 'block';
-                logoutOption.style.padding = '0.7rem 1.2rem';
-                logoutOption.style.color = '#a8b5a0';
-                logoutOption.style.textDecoration = 'none';
-                logoutOption.style.fontWeight = '500';
-                logoutOption.onmouseover = function() { this.style.background = '#f0ede8'; };
-                logoutOption.onmouseout = function() { this.style.background = 'none'; };
-                logoutOption.onclick = function(e) {
-                    e.preventDefault();
-                    auth.signOut();
-                };
-
-                dropdown.appendChild(profileOption);
-                dropdown.appendChild(logoutOption);
-                li.style.position = 'relative';
-                li.appendChild(img);
-                li.appendChild(dropdown);
-
-                img.onclick = function(e) {
-                    e.stopPropagation();
-                    dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
-                };
-                document.addEventListener('click', function hideDropdown(ev) {
-                    if (!li.contains(ev.target)) {
-                        dropdown.style.display = 'none';
+        function updateNavProfilePhoto(user) {
+            const navProfilePhoto = document.getElementById('navProfilePhoto');
+            if (!navProfilePhoto) return;
+            // Set default avatar first
+            navProfilePhoto.src = user
+                ? (user.photoURL || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user.displayName || user.email || 'U') + '&background=a8b5a0&color=fff&rounded=true&size=48')
+                : 'https://ui-avatars.com/api/?name=U&background=a8b5a0&color=fff&rounded=true&size=48';
+            // Try to load Firestore photoBase64
+            if (user) {
+                db.collection('users').doc(user.uid).get().then(doc => {
+                    const data = doc.data();
+                    if (data && data.photoBase64) {
+                        navProfilePhoto.src = data.photoBase64;
                     }
                 });
-                navLinks.appendChild(li);
-            } else {
-                const li = document.createElement('li');
-                li.className = 'nav-join-btn-li';
-                li.style.display = 'flex';
-                li.style.alignItems = 'center';
-                li.style.height = '100%';
-                li.style.margin = '0';
-                const a = document.createElement('a');
-                a.href = 'join.html';
-                a.className = 'nav-join-btn';
-                a.style.background = '#a8b5a0';
-                a.style.color = '#fff';
-                a.style.padding = '0.5rem 1.5rem';
-                a.style.borderRadius = '24px';
-                a.style.fontWeight = '600';
-                a.style.transition = 'background 0.2s';
-                a.textContent = 'Join';
-                li.appendChild(a);
-                navLinks.appendChild(li);
             }
         }
 
         auth.onAuthStateChanged(function(user) {
-            updateNavProfile(user);
-            console.log('[index.html] onAuthStateChanged. User:', user);
+            showProfileNav(user);
+            updateNavProfilePhoto(user);
+            // ...existing dropdown logic if needed...
         });
-        console.log('[index.html] Firebase initialized, script loaded.');
     }
     </script>
 </body>

@@ -34,7 +34,7 @@
         }
         .logo {
             font-family: 'Playfair Display', serif;
-            font-size: 1.3rem;
+            font-size: 2.1rem;
             color: #3a3a3a;
             text-decoration: none;
             font-weight: 700;
@@ -394,7 +394,7 @@
     </style>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
     <header class="header">
@@ -561,16 +561,27 @@
         </main>
     </div>
     <script src="firebase-secrets.js"></script>
-    <script src="profile-photo-upload-helper.js"></script>
     <script>
-    // Use firebaseConfig from firebase-secrets.js
     if (typeof firebaseConfig === 'undefined') {
         console.error('firebaseConfig is not defined. Please provide your firebase-secrets.js file.');
     } else {
-        if (!firebase.apps || !firebase.apps.length) {
+        if (!firebase.apps.length) {
             firebase.initializeApp(firebaseConfig);
         }
         const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // Utility: Set nav profile photo from Firestore
+        function setNavProfilePhotoFromFirestore(user) {
+            if (!user) return;
+            db.collection('users').doc(user.uid).get().then(doc => {
+                const data = doc.data();
+                if (data && data.photoBase64) {
+                    const navProfilePhoto = document.getElementById('navProfilePhoto');
+                    if (navProfilePhoto) navProfilePhoto.src = data.photoBase64;
+                }
+            });
+        }
 
         function updateNavProfile(user) {
             const navLinks = document.querySelector('.nav-links');
@@ -594,7 +605,6 @@
                 li.style.margin = '0';
                 const img = document.createElement('img');
                 img.className = 'nav-profile-photo';
-                img.src = user.photoURL || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user.displayName || user.email || 'A') + '&background=a8b5a0&color=fff&rounded=true&size=48';
                 img.alt = 'Profile';
                 img.style.width = '38px';
                 img.style.height = '38px';
@@ -607,6 +617,17 @@
                 img.style.display = 'block';
                 img.style.margin = '0';
                 img.style.verticalAlign = 'middle';
+
+                // Set default first, then update with Firestore photoBase64 if available
+                img.src = user.photoURL || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user.displayName || user.email || 'A') + '&background=a8b5a0&color=fff&rounded=true&size=48';
+
+                // Fetch Firestore photoBase64 and update src if present
+                db.collection('users').doc(user.uid).get().then(doc => {
+                    const data = doc.data();
+                    if (data && data.photoBase64) {
+                        img.src = data.photoBase64;
+                    }
+                });
 
                 // Dropdown menu
                 const dropdown = document.createElement('div');
@@ -722,6 +743,7 @@
             updateNavProfile(user);
             if (user) {
                 updateProfileFields(user);
+                setNavProfilePhotoFromFirestore(user);
             }
         });
 
@@ -735,7 +757,7 @@
                     photoInput.value = '';
                     photoInput.click();
                 });
-                photoInput.addEventListener('change', async function(e) {
+                photoInput.addEventListener('change', function(e) {
                     const file = e.target.files[0];
                     if (!file) return;
                     if (!/^image\//.test(file.type)) {
@@ -743,44 +765,44 @@
                         return;
                     }
                     photoStatusMsg.textContent = 'Uploading photo...';
-                    try {
+                    const reader = new FileReader();
+                    reader.onload = function(evt) {
+                        const base64 = evt.target.result;
                         const user = auth.currentUser;
                         if (!user) {
                             photoStatusMsg.textContent = 'You must be signed in.';
                             return;
                         }
-                        if (typeof uploadAndSetProfilePhoto !== 'function') {
-                            photoStatusMsg.textContent = 'Upload helper not loaded. Please refresh the page.';
-                            console.error('uploadAndSetProfilePhoto is not defined.');
-                            return;
-                        }
-                        // Use helper to upload and set profile photo
-                        const downloadURL = await uploadAndSetProfilePhoto(file, user);
-                        // Force reload user to get latest photoURL
-                        await user.reload();
-                        const updatedUser = auth.currentUser;
-                        // Update UI with new photoURL (prefer Firebase value, fallback to downloadURL)
-                        const newPhotoURL = (updatedUser && updatedUser.photoURL) ? updatedUser.photoURL : downloadURL;
-                        const cacheBust = '?t=' + Date.now();
-                        profilePhoto.src = newPhotoURL + cacheBust;
-                        photoStatusMsg.textContent = 'Profile photo updated!';
-                        // Update nav photo everywhere
-                        const navProfilePhoto = document.getElementById('navProfilePhoto');
-                        if (navProfilePhoto) navProfilePhoto.src = newPhotoURL + cacheBust;
-                        // If nav bar is dynamically rendered, also call updateNavProfile
-                        if (typeof updateNavProfile === 'function') updateNavProfile(updatedUser);
-                    } catch (err) {
-                        console.error('Photo upload error:', err);
-                        if (err && err.message && err.message.includes('size')) {
-                            photoStatusMsg.textContent = 'Image is too large. Please choose a smaller image.';
-                        } else if (err && err.message) {
-                            photoStatusMsg.textContent = 'Failed to upload photo: ' + err.message;
-                        } else {
-                            photoStatusMsg.textContent = 'Failed to upload photo. Please try again.';
-                        }
-                    }
+                        db.collection('users').doc(user.uid).set({ photoBase64: base64 }, { merge: true })
+                            .then(() => {
+                                profilePhoto.src = base64;
+                                photoStatusMsg.textContent = 'Profile photo updated!';
+                                // Update nav photo everywhere
+                                const navProfilePhoto = document.getElementById('navProfilePhoto');
+                                if (navProfilePhoto) navProfilePhoto.src = base64;
+                            })
+                            .catch(err => {
+                                photoStatusMsg.textContent = 'Failed to upload photo: ' + err.message;
+                            });
+                    };
+                    reader.readAsDataURL(file);
                 });
             }
+
+            auth.onAuthStateChanged(function(user) {
+                // ...existing updateNavProfile, updateProfileFields...
+                if (user) {
+                    db.collection('users').doc(user.uid).get().then(doc => {
+                        const data = doc.data();
+                        if (data && data.photoBase64) {
+                            const profilePhoto = document.getElementById('profilePhoto');
+                            if (profilePhoto) profilePhoto.src = data.photoBase64;
+                            const navProfilePhoto = document.getElementById('navProfilePhoto');
+                            if (navProfilePhoto) navProfilePhoto.src = data.photoBase64;
+                        }
+                    });
+                }
+            });
         });
     }
     </script>

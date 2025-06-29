@@ -38,7 +38,7 @@
         }
         .logo {
             font-family: 'Playfair Display', serif;
-            font-size: 1.3rem;
+            font-size: 2.1rem;
             color: #3a3a3a;
             text-decoration: none;
             font-weight: 700;
@@ -147,6 +147,7 @@
     </style>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
     <header class="header">
@@ -171,7 +172,12 @@
 
     <section class="gallery-section">
         <div class="container">
-            <div class="gallery-grid">
+            <div id="gallery-empty-state" style="display:none;text-align:center;padding:4rem 0;">
+                <img src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f4a1.svg" alt="No designs" style="width:64px;height:64px;opacity:0.25;margin-bottom:1.5rem;">
+                <div style="font-size:1.25rem;color:#6b6b6b;margin-bottom:1.2rem;">No designs yet</div>
+                <div style="color:#aaa;font-size:1rem;">Your saved and remixed designs will appear here.<br>Start creating in the <a href="studio.html" style="color:#a8b5a0;text-decoration:underline;">Design Studio</a>.</div>
+            </div>
+            <div class="gallery-grid" id="galleryGrid">
                 <div class="gallery-card">
                     <img src="https://images.unsplash.com/photo-1512436991641-6745cdb1723f?auto=format&fit=crop&w=300&q=80" alt="Aurora Dress">
                     <h3>Aurora Dress</h3>
@@ -210,6 +216,7 @@
             firebase.initializeApp(firebaseConfig);
         }
         const auth = firebase.auth();
+        const db = firebase.firestore();
 
         function updateNavProfile(user) {
             const navLinks = document.querySelector('.nav-links');
@@ -233,7 +240,6 @@
                 li.style.margin = '0';
                 const img = document.createElement('img');
                 img.className = 'nav-profile-photo';
-                img.src = user.photoURL || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user.displayName || user.email || 'A') + '&background=a8b5a0&color=fff&rounded=true&size=48';
                 img.alt = 'Profile';
                 img.style.width = '38px';
                 img.style.height = '38px';
@@ -246,6 +252,14 @@
                 img.style.display = 'block';
                 img.style.margin = '0';
                 img.style.verticalAlign = 'middle';
+                // Set default first, then update with Firestore photoBase64 if available
+                img.src = user.photoURL || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user.displayName || user.email || 'A') + '&background=a8b5a0&color=fff&rounded=true&size=48';
+                db.collection('users').doc(user.uid).get().then(doc => {
+                    const data = doc.data();
+                    if (data && data.photoBase64) {
+                        img.src = data.photoBase64;
+                    }
+                });
 
                 const dropdown = document.createElement('div');
                 dropdown.className = 'nav-profile-dropdown';
@@ -324,8 +338,35 @@
             }
         }
 
+        // --- Empty state logic ---
+        function showGallery(designs) {
+            const grid = document.getElementById('galleryGrid');
+            const empty = document.getElementById('gallery-empty-state');
+            if (!designs || designs.length === 0) {
+                grid.style.display = 'none';
+                empty.style.display = '';
+            } else {
+                grid.style.display = '';
+                empty.style.display = 'none';
+                // Render designs (if you want to show them dynamically)
+                // grid.innerHTML = ...;
+            }
+        }
+
         auth.onAuthStateChanged(function(user) {
             updateNavProfile(user);
+            if (!user) {
+                showGallery([]);
+                return;
+            }
+            // Example Firestore: designs saved under users/{uid}/designs
+            db.collection('users').doc(user.uid).collection('designs').get().then(snap => {
+                const designs = [];
+                snap.forEach(doc => designs.push(doc.data()));
+                showGallery(designs);
+            }).catch(() => {
+                showGallery([]);
+            });
         });
     }
     </script>
